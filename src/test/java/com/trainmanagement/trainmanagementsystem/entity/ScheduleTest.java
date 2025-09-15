@@ -1,0 +1,7 @@
+package com.trainmanagement.trainmanagementsystem.entity;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ScheduleTest {
+
+}
