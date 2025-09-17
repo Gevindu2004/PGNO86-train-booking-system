@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Train</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Available Seats</h1>
+        <a class="btn" th:href="@{/trains/search}">Back to search</a>
+    </div>
+
+    <div class="card">
+        <form th:action="@{/bookings}" th:object="${bookingRequest}" method="post">
+            <input type="hidden" th:field="*{scheduleId}" th:value="${scheduleId}"/>
+            <label>Passenger Name
+                <input type="text" th:field="*{passengerName}" placeholder="Your full name"/>
+            </label>
+            <h3>Select Seats</h3>
+            <div class="grid" style="grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px;">
+                <label class="chip" th:each="seat : ${seats}">
+                    <input type="checkbox" th:field="*{seatIds}" th:value="${seat.id}"/>
+                    <span th:text="${seat.seatNumber}"></span>
+                </label>
+            </div>
+            <div class="spacer"></div>
+            <button type="submit">Book</button>
+        </form>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div th:if="${booking}" class="card">
+        <h2>Booking Confirmed!</h2>
+        <p>Reference: <strong th:text="${booking.id}"></strong></p>
+        <form th:action="@{/bookings/cancel/{id}(id=${booking.id})}" method="post">
+            <button class="btn danger" type="submit">Cancel booking</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

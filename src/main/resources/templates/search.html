@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Train Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
+    </head>
+<body th:style="'background-image:url(' + @{/images/Shutterstock1481121296.jpg} + ');background-size:cover;background-position:center;background-attachment:fixed'">
+<div class="bg-overlay"></div>
+<div class="container">
+    <div class="header">
+        <h1>Train Search</h1>
+    </div>
+
+    <div class="card">
+        <form th:action="@{/trains/search}" th:object="${searchRequest}" method="post" class="grid two">
+            <div class="form-title">Search Train</div>
+            <label>From
+                <input type="text" th:field="*{fromStation}" placeholder="Origin station"/>
+            </label>
+            <label>To
+                <input type="text" th:field="*{toStation}" placeholder="Destination station"/>
+            </label>
+            <label>Date
+                <input type="date" th:field="*{date}"/>
+            </label>
+            <label>Time
+                <input type="time" th:field="*{time}"/>
+            </label>
+            <div></div>
+            <div style="text-align:right">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div th:if="${results}" class="card">
+        <h2>Available Trains</h2>
+        <table>
+            <thead>
+                <tr><th>Train</th><th>Departure</th><th>Arrival</th><th></th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="schedule : ${results}">
+                    <td th:text="${schedule.train.name}"></td>
+                    <td th:text="${schedule.departureTime}"></td>
+                    <td th:text="${schedule.arrivalTime}"></td>
+                    <td><a class="btn" th:href="@{/trains/seats/{id}(id=${schedule.id})}">View seats & book</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
