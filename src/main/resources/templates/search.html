@@ -14,7 +14,7 @@
     </div>
 
     <div class="card">
-        <form th:action="@{/trains/search}" th:object="${searchRequest}" method="post" class="grid two">
+        <form id="train-search-form" th:action="@{/trains/search}" th:object="${searchRequest}" method="post" class="grid two">
             <div class="form-title">Search Train</div>
             <label>From
                 <input type="text" th:field="*{fromStation}" placeholder="Origin station"/>
@@ -28,8 +28,7 @@
             <label>Time
                 <input type="time" th:field="*{time}"/>
             </label>
-            <div></div>
-            <div style="text-align:right">
+            <div class="full-span" style="text-align:center">
                 <button type="submit">Search</button>
             </div>
         </form>

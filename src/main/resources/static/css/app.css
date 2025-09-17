@@ -25,6 +25,9 @@ button { height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid r
 button:hover { filter: brightness(1.05); }
 .form-title { grid-column: 1 / -1; text-align: center; margin: 4px 0 6px 0; font-size: 22px; font-weight: 700; letter-spacing: .3px; color: #e5e7eb; text-shadow: 0 1px 8px rgba(0,0,0,.35); }
 
+/* Center the Train Search form */
+#train-search-form { max-width: 640px; margin: 0 auto; }
+
 /* Table */
 table { width: 100%; border-collapse: collapse; margin-top: 12px; }
 thead th { color: #cbd5e1; border-bottom: 1px solid rgba(148,163,184,.35); }
@@ -32,7 +35,26 @@ th, td { padding: 12px; border-bottom: 1px solid rgba(148,163,184,.18); }
 tbody tr:hover { background: rgba(2,6,23,.35); }
 a.btn { display: inline-block; padding: 10px 14px; border: 1px solid rgba(148,163,184,.35); border-radius: 10px; text-decoration: none; color: #e5e7eb; background: rgba(56,189,248,.18); }
 
+/* Floating effect for Visit button */
+.floating { animation: floatY 2.6s ease-in-out infinite; box-shadow: 0 12px 24px rgba(0,0,0,.25); }
+@keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
 /* Booking seat grid */
 .seat-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
 .chip { display: inline-block; padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(148,163,184,.25); color: #e5e7eb; font-size: 12px; background: rgba(2,6,23,.35); }
+
+/* Hero (Welcome) */
+.hero { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 0 16px; color: #fff; text-align: center; }
+.hero-card { display: inline-block; padding: 28px 32px; border-radius: 16px; background: transparent; border: 0; backdrop-filter: none; box-shadow: none; }
+.hero-title { font-size: 56px; line-height: 1.1; margin: 0 0 12px 0; letter-spacing: .4px; text-shadow: 0 6px 22px rgba(0,0,0,.6); }
+.hero-subtitle { font-size: 20px; color: #e5e7eb; margin: 0 0 26px 0; text-shadow: 0 3px 16px rgba(0,0,0,.45); }
+@media (max-width: 640px) {
+  .hero-title { font-size: 38px; }
+  .hero-subtitle { font-size: 16px; }
+}
+
+/* CTA button */
+.cta { display: inline-block; padding: 14px 26px; border-radius: 999px; border: 1px solid rgba(148,163,184,.35); font-weight: 700; text-decoration: none; color: #fff; transition: transform .15s ease, filter .15s ease; }
+.cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.cta-orange { background: linear-gradient(180deg, #007712, #007116); border: none; box-shadow: 0 16px 28px rgba(0,0,0,.3), 0 4px 0 rgba(0,0,0,.18) inset; }
 
