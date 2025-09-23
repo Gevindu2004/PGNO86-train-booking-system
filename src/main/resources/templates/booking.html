@@ -3,8 +3,15 @@
 <head>
     <title>Book Train</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/booking.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
+    <style>
+        /* Hide seat selection by default */
+        #seat-selection {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -13,19 +20,76 @@
         <a class="btn" th:href="@{/trains/search}">Back to search</a>
     </div>
 
-    <div class="card">
+    <div class="card booking-form">
         <form th:action="@{/bookings}" th:object="${bookingRequest}" method="post">
             <input type="hidden" th:field="*{scheduleId}" th:value="${scheduleId}"/>
             <label>Passenger Name
-                <input type="text" th:field="*{passengerName}" placeholder="Your full name"/>
+                <input type="text" th:field="*{passengerName}" placeholder="Your full name" class="passenger-name-input"/>
             </label>
-            <h3>Select Seats</h3>
-            <div class="grid" style="grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px;">
-                <label class="chip" th:each="seat : ${seats}">
-                    <input type="checkbox" th:field="*{seatIds}" th:value="${seat.id}"/>
-                    <span th:text="${seat.seatNumber}"></span>
-                </label>
+
+            <h3>Select Coach</h3>
+
+            <!-- Coach Selection -->
+            <div id="coach-selection" class="coach-selection">
+                <div style="display:flex; gap:14px; margin:6px 0 12px 0; flex-wrap: wrap; align-items:center;">
+                    <span style="opacity:.8; margin-right:4px;">Select coach:</span>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
+                        <span style="font-weight:700; color:#cbd5e1;">First class (A)</span>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('A1')" data-coach="A1">A1</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('A2')" data-coach="A2">A2</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('A3')" data-coach="A3">A3</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('A4')" data-coach="A4">A4</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('A5')" data-coach="A5">A5</button>
+                    </div>
+                    <div style="width:1px; height:20px; background: rgba(148,163,184,.35);"></div>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
+                        <span style="font-weight:700; color:#cbd5e1;">Second class (B)</span>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('B1')" data-coach="B1">B1</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('B2')" data-coach="B2">B2</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('B3')" data-coach="B3">B3</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('B4')" data-coach="B4">B4</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('B5')" data-coach="B5">B5</button>
+                    </div>
+                    <div style="width:1px; height:20px; background: rgba(148,163,184,.35);"></div>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
+                        <span style="font-weight:700; color:#cbd5e1;">Third class (C)</span>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('C1')" data-coach="C1">C1</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('C2')" data-coach="C2">C2</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('C3')" data-coach="C3">C3</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('C4')" data-coach="C4">C4</button>
+                        <button type="button" class="chip coach-btn" onclick="selectCoach('C5')" data-coach="C5">C5</button>
+                    </div>
+                </div>
             </div>
+
+            <!-- Seat Selection -->
+            <div id="seat-selection" class="seat-selection">
+                <div id="seat-selection-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3>Select Seats <span id="selected-coach-name"></span></h3>
+                    <button type="button" class="btn secondary" onclick="backToCoachSelection()" id="back-to-coaches-btn" style="display: none;">Back to Coaches</button>
+                </div>
+
+                <div class="legend" style="display:flex; gap:12px; align-items:center; margin: 8px 0 12px 0;">
+                    <span class="seat-box free"></span><span>Available</span>
+                    <span class="seat-box reserved"></span><span>Reserved</span>
+                    <span class="seat-box selected"></span><span>Selected</span>
+                </div>
+
+                <div class="seat-grid" id="seat-grid">
+                    <div th:if="${seats == null or #lists.isEmpty(seats)}" style="color: red; padding: 20px; text-align: center;">
+                        No seats found for this schedule. Please check the database.
+                    </div>
+
+                    <label th:each="seat, iter : ${seats}"
+                           class="seat"
+                           th:attr="data-seat=${seat.seatNumber}, data-coach=${seat.coachNum}"
+                           th:classappend="${seat.available} ? ' free' : ' reserved'">
+                        <input type="checkbox" th:field="*{seatIds}" th:value="${seat.id}" th:disabled="${!seat.available}" onchange="syncSelectedClass(this)" onclick="syncSelectedClass(this)"/>
+                        <span class="label" th:text="${seat.seatNumber}"></span>
+                    </label>
+                </div>
+            </div>
+
             <div class="spacer"></div>
             <button type="submit">Book</button>
         </form>
@@ -33,13 +97,14 @@
 
     <div class="spacer"></div>
 
-    <div th:if="${booking}" class="card">
+    <div th:if="${booking}" class="card booking-confirmation">
         <h2>Booking Confirmed!</h2>
-        <p>Reference: <strong th:text="${booking.id}"></strong></p>
+        <p class="booking-reference">Reference: <strong th:text="${booking.id}"></strong></p>
         <form th:action="@{/bookings/cancel/{id}(id=${booking.id})}" method="post">
             <button class="btn danger" type="submit">Cancel booking</button>
         </form>
     </div>
 </div>
+<script th:src="@{/js/booking.js}"></script>
 </body>
 </html>
