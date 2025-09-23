@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Train Schedules</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h2>Real-Time Train Schedules</h2>
+<a href="/schedules/new" class="btn btn-primary mb-3">Add New Schedule</a>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+    <tr>
+        <th>ID</th>
+        <th>Train No.</th>
+        <th>Route</th>
+        <th>Departure</th>
+        <th>Arrival</th>
+        <th>Platform</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="schedule : ${schedules}" th:id="'row-' + ${schedule.scheduleId}">
+        <td th:text="${schedule.scheduleId}"></td>
+        <td th:text="${schedule.trainNumber}"></td>
+        <td th:text="${schedule.route}"></td>
+        <td th:text="${schedule.departureTime}"></td>
+        <td th:text="${schedule.arrivalTime}"></td>
+        <td th:text="${schedule.platform}"></td>
+        <td th:text="${schedule.status}" th:classappend="${schedule.status == 'Delayed'} ? 'text-danger' : 'text-success'"></td>
+        <td>
+            <a th:href="@{/schedules/edit/{id}(id=${schedule.scheduleId})}" class="btn btn-warning btn-sm">Edit</a>
+            <a th:href="@{/schedules/delete/{id}(id=${schedule.scheduleId})}" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- SockJS + STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+    let stompClient = null;
+    function connect() {
+        const socket = new SockJS('/ws-schedules');
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+        stompClient.connect({}, function(frame) {
+            stompClient.subscribe('/topic/schedules', function(message) {
+                const payload = JSON.parse(message.body);
+                handleScheduleMessage(payload);
+            });
+        });
+    }
+
+    function handleScheduleMessage(msg) {
+        const rowId = 'row-' + msg.scheduleId;
+        let row = document.getElementById(rowId);
+        if (msg.action === 'DELETED') {
+            if (row) row.remove();
+            return;
+        }
+        const html = `
+                <tr id="row-${msg.scheduleId}">
+                    <td>${msg.scheduleId}</td>
+                    <td>${msg.trainNumber}</td>
+                    <td>${msg.route}</td>
+                    <td>${msg.departureTime}</td>
+                    <td>${msg.arrivalTime}</td>
+                    <td>${msg.platform}</td>
+                    <td class="${msg.status === 'Delayed' ? 'text-danger' : 'text-success'}">${msg.status}</td>
+                    <td>
+                        <a href="/schedules/edit/${msg.scheduleId}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/schedules/delete/${msg.scheduleId}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            `;
+        if (row) {
+            row.outerHTML = html;
+        } else {
+            document.querySelector("table tbody").insertAdjacentHTML('afterbegin', html);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", connect);
+</script>
+</body>
+</html>

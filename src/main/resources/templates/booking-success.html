@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed - Train Management System</title>
+    <link rel="stylesheet" th:href="@{/css/booking.css}">
+    <style>
+        .success-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            color: #28a745;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .booking-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .booking-details h3 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #28a745;
+            padding-bottom: 10px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-2px);
+        }
+        
+        .booking-reference {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #495057;
+        }
+        
+        .reference-number {
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">✅</div>
+        <h1 class="success-title">Booking Confirmed!</h1>
+        
+        <div class="booking-reference">
+            <strong>Booking Reference:</strong> 
+            <span class="reference-number" th:text="${booking.id}">#12345</span>
+        </div>
+        
+        <div class="booking-details">
+            <h3>Booking Details</h3>
+            
+            <div class="detail-row">
+                <span class="detail-label">Passenger Name:</span>
+                <span class="detail-value" th:text="${booking.passengerName}">John Doe</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Train:</span>
+                <span class="detail-value" th:text="${booking.schedule.train.name}">Blue Line Express</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Route:</span>
+                <span class="detail-value" th:text="${booking.schedule.fromStation} + ' → ' + ${booking.schedule.toStation}">Colombo → Kandy</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Date:</span>
+                <span class="detail-value" th:text="${#temporals.format(booking.schedule.date, 'dd/MM/yyyy')}">25/12/2024</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Departure Time:</span>
+                <span class="detail-value" th:text="${#temporals.format(booking.schedule.departureTime, 'HH:mm')}">09:00</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Arrival Time:</span>
+                <span class="detail-value" th:text="${#temporals.format(booking.schedule.arrivalTime, 'HH:mm')}">12:00</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Seats:</span>
+                <span class="detail-value" th:text="${seatNumbersString}">A1-W1, A1-W2</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Status:</span>
+                <span class="detail-value" style="color: #28a745; font-weight: bold;" th:text="${booking.status}">CONFIRMED</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Booking Time:</span>
+                <span class="detail-value" th:text="${#temporals.format(booking.bookingTime, 'dd/MM/yyyy HH:mm')}">25/12/2024 10:30</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a th:href="@{/passenger/bookings}" class="btn btn-primary">View My Bookings</a>
+            <a th:href="@{/trains/search}" class="btn btn-success">Book Another Ticket</a>
+            <a th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+            <strong>Important:</strong> Please save your booking reference number for future reference. 
+            You can use it to check your booking status or make changes.
+        </div>
+    </div>
+</body>
+</html>

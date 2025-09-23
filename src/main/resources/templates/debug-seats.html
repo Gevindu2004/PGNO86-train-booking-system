@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Seat Mapping Debug</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-info { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .seat-mapping { background: #e8f4fd; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffe8e8; color: #c33; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Seat Mapping Debug</h1>
+    
+    <div th:if="${error}" class="error">
+        <h3>Error:</h3>
+        <p th:text="${error}">Unknown error</p>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Debug Information</h3>
+        <p><strong>Total Seats Mapped:</strong> <span th:text="${totalSeats}">0</span></p>
+        
+        <h4>Seat Details:</h4>
+        <ul th:each="info : ${debugInfo}">
+            <li th:text="${info}">Debug info</li>
+        </ul>
+    </div>
+    
+    <div class="seat-mapping">
+        <h3>Seat ID to Number Mapping</h3>
+        <div th:each="entry : ${seatMapping}">
+            <p><strong>Seat ID:</strong> <span th:text="${entry.key}">ID</span> → <strong>Seat Number:</strong> <span th:text="${entry.value}">Number</span></p>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="/passenger/booking" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Go to Booking Page</a>
+        <a href="/passenger/test-auth" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-left: 10px;">Test Auth</a>
+    </div>
+</body>
+</html>

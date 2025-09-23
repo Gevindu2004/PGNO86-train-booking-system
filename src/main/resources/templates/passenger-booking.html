@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Complete Booking</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/booking.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>window.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'))</script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Complete Your Booking</h1>
+            <a class="btn" th:href="@{/trains/search}">Back to search</a>
+        </div>
+
+        <div class="card booking-form">
+            <h3>Booking Details</h3>
+
+            <!-- Success message display -->
+            <div th:if="${param.success}" class="success"
+                style="background: #efe; color: #3c3; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                <strong>Success:</strong> <span th:text="${param.success}"></span>
+            </div>
+            <!-- Error message display -->
+            <div th:if="${error}" class="error"
+                style="background: #fee; color: #c33; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                <strong>Error:</strong> <span th:text="${error}"></span>
+            </div>
+
+
+            <!-- Show selected seats information -->
+            <div id="selected-seats-info" class="selected-seats-info" style="margin-bottom: 20px;">
+                <h4>Selected Seats:</h4>
+                <div id="seats-list" style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+                    <!-- Seats will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <form th:action="@{/bookings/complete}" method="post" id="booking-form">
+                <input type="hidden" name="scheduleId" id="scheduleId" />
+                <input type="hidden" name="seatIds" id="seatIds" />
+
+                <div
+                    style="background: #fff; color: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    <h4 style="font-weight: 600; color: #222; margin-bottom: 8px;">Passenger Information</h4>
+                    <p><strong>Name:</strong> <span th:text="${passengerName != null ? passengerName : 'Guest User'}">Guest User</span></p>
+                    <p><strong>Email:</strong> <span th:text="${passengerEmail != null ? passengerEmail : 'Not logged in'}">Not logged in</span></p>
+                    <p><strong>Phone:</strong> <span th:text="${passengerPhone != null ? passengerPhone : 'Not logged in'}">Not logged in</span></p>
+                    <p><strong>Booking Time:</strong> <span id="booking-time" style="color: #222;"></span></p>
+                    <div th:if="${passengerName == null or passengerName == 'Guest User' or passengerName == 'Error loading user'}" 
+                         style="background: #fff3cd; color: #856404; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 14px;">
+                        <strong>Note:</strong> You are not logged in. <a th:href="@{/login}" style="color: #856404; text-decoration: underline;">Login here</a> to see your details.
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <button type="submit" class="btn primary">Confirm Booking</button>
+            </form>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div th:if="${booking}" class="card booking-confirmation">
+            <h2>Booking Confirmed!</h2>
+            <p class="booking-reference">Reference: <strong th:text="${booking.id}"></strong></p>
+            <div class="booking-details">
+                <p><strong>Seats:</strong>
+                    <span th:text="${seatNumbersString}"></span>
+                </p>
+                <p><strong>Schedule:</strong> <span th:text="${booking.schedule}"></span></p>
+            </div>
+            <form th:action="@{/bookings/cancel/{id}(id=${booking.id})}" method="post">
+                <button class="btn danger" type="submit">Cancel booking</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Make seat mapping available to JavaScript
+        window.seatIdToNumberMap = /*[[${seatIdToNumberMap}]]*/ {};
+        
+        // Check if the mapping is populated, if not create manual mapping
+        if (Object.keys(window.seatIdToNumberMap).length === 0) {
+            createManualSeatMapping();
+        }
+        
+        // Manual seat mapping as fallback (based on your database structure)
+        function createManualSeatMapping() {
+            window.seatIdToNumberMap = {};
+            
+            // Based on your data.sql, create the mapping manually
+            // Schedule 1 seats (A1-W1 to A1-W20, A2-W1 to A2-W20, etc.)
+            let seatId = 1;
+            
+            // A1 coach seats (A1-W1 to A1-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A1-W${i}`;
+                seatId++;
+            }
+            
+            // A2 coach seats (A2-W1 to A2-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A2-W${i}`;
+                seatId++;
+            }
+            
+            // A3 coach seats (A3-W1 to A3-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A3-W${i}`;
+                seatId++;
+            }
+            
+            // A4 coach seats (A4-W1 to A4-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A4-W${i}`;
+                seatId++;
+            }
+            
+            // A5 coach seats (A5-W1 to A5-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A5-W${i}`;
+                seatId++;
+            }
+            
+            // B1 coach seats (B1-W1 to B1-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `B1-W${i}`;
+                seatId++;
+            }
+            
+            // C1 coach seats (C1-W1 to C1-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `C1-W${i}`;
+                seatId++;
+            }
+        }
+        
+        // Load booking data from localStorage and populate the form
+        document.addEventListener('DOMContentLoaded', function () {
+            const rawBookingData = localStorage.getItem('pendingBooking');
+            let bookingData;
+            try {
+                bookingData = JSON.parse(rawBookingData || '{}');
+            } catch (e) {
+                showError('Booking data is corrupted. Please start a new booking.');
+                return;
+            }
+
+            // Defensive: seatIds should be an array
+            if (bookingData && bookingData.scheduleId && Array.isArray(bookingData.seatIds) && bookingData.seatIds.length > 0) {
+                // Populate hidden form fields
+                document.getElementById('scheduleId').value = bookingData.scheduleId;
+                // Set seat IDs (for backend processing)
+                document.getElementById('seatIds').value = bookingData.seatIds.join(',');
+                // Map seat IDs to seat numbers for display
+                let seatNumbers = [];
+                
+                bookingData.seatIds.forEach(seatId => {
+                    // Always convert seatId to string for lookup
+                    const seatIdStr = String(seatId).trim();
+                    let seatNumber = seatIdStr; // Default to seat ID if mapping not found
+                    
+                    // Try to find the seat number in the mapping
+                    if (window.seatIdToNumberMap && window.seatIdToNumberMap[seatIdStr]) {
+                        seatNumber = window.seatIdToNumberMap[seatIdStr];
+                    }
+                    seatNumbers.push(seatNumber);
+                });
+                // Show seat numbers in the read-only input
+                const seatNumbersDisplay = document.getElementById('seatNumbersDisplay');
+                if (seatNumbersDisplay) {
+                    seatNumbersDisplay.value = seatNumbers.join(', ');
+                }
+                // Populate seat information display
+                populateSeatInfo(bookingData.seatIds, seatNumbers);
+                // Set booking time
+                document.getElementById('booking-time').textContent = new Date().toLocaleString();
+                // Set passenger name (you can enhance this with actual user data)
+                document.getElementById('passenger-name').textContent = 'Passenger';
+            } else {
+                if (!bookingData.scheduleId) {
+                    showError('Schedule ID is missing from booking data.');
+                } else if (!Array.isArray(bookingData.seatIds) || bookingData.seatIds.length === 0) {
+                    showError('Seat selection is missing from booking data.');
+                } else {
+                    showError('No booking in progress or session expired.');
+                }
+            }
+        });
+
+        function showError(message) {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="card booking-form" style="text-align:center; padding:40px;">
+                    <h2>Error</h2>
+                    <p>${message}</p>
+                    <a class="btn primary" href="/trains/search">Start a New Booking</a>
+                </div>
+            `;
+        }
+
+        function populateSeatInfo(seatIds, seatNumbersArr) {
+            const seatsList = document.getElementById('seats-list');
+            seatsList.innerHTML = '';
+            seatIds.forEach((seatId, idx) => {
+                const seatIdStr = String(seatId).trim();
+                let seatNumber = seatIdStr; // Default to seat ID
+                
+                // Try to get the seat number from the mapping first
+                if (window.seatIdToNumberMap && window.seatIdToNumberMap[seatIdStr]) {
+                    seatNumber = window.seatIdToNumberMap[seatIdStr];
+                } else if (seatNumbersArr && seatNumbersArr[idx]) {
+                    seatNumber = seatNumbersArr[idx];
+                }
+                
+                const seatDiv = document.createElement('div');
+                seatDiv.className = 'seat-box selected';
+                seatDiv.textContent = `Seat ${seatNumber}`;
+                seatsList.appendChild(seatDiv);
+            });
+        }
+
+
+        // Clear booking data after successful submission
+        const bookingForm = document.getElementById('booking-form');
+        if (bookingForm) {
+            bookingForm.addEventListener('submit', function () {
+                localStorage.removeItem('pendingBooking');
+            });
+        }
+    </script>
+
+
+</body>
+
+</html>

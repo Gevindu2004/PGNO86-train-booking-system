@@ -16,6 +16,13 @@ import java.util.List;
 @Service
 public class BookingService {
     @Autowired
+    private com.trainmanagement.trainmanagementsystem.service.PassengerService passengerService;
+
+    public com.trainmanagement.trainmanagementsystem.entity.Passenger findPassengerByUsername(String username) {
+        return passengerService.findByUsername(username).orElse(null);
+    }
+
+    @Autowired
     private BookingRepository bookingRepository;
 
     @Autowired
@@ -26,10 +33,19 @@ public class BookingService {
 
     @Transactional
     public Booking bookTickets(BookingRequest request) {
+        if (request.getScheduleId() == null) {
+            throw new IllegalArgumentException("Schedule ID cannot be null");
+        }
+        if (request.getSeatIds() == null || request.getSeatIds().isEmpty()) {
+            throw new IllegalArgumentException("Seat IDs cannot be null or empty");
+        }
+
         Booking booking = new Booking();
         booking.setPassengerName(request.getPassengerName());
         booking.setBookingTime(LocalDateTime.now());
         booking.setSchedule(scheduleRepository.findById(request.getScheduleId()).orElseThrow());
+        
+        System.out.println("[DEBUG] BookingService - Creating booking for passenger: " + request.getPassengerName());
 
         List<Seat> seats = seatRepository.findAllById(request.getSeatIds());
         seats.forEach(seat -> {
@@ -51,5 +67,9 @@ public class BookingService {
         booking.getSeats().forEach(seat -> seat.setAvailable(true));
         seatRepository.saveAll(booking.getSeats());
         bookingRepository.save(booking);
+    }
+
+    public List<Booking> getBookingsByPassengerName(String passengerName) {
+        return bookingRepository.findByPassengerNameOrderByBookingTimeDesc(passengerName);
     }
 }
