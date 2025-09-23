@@ -38,7 +38,12 @@ public class TrainController {
 
     @GetMapping("/seats/{scheduleId}")
     public String showAvailableSeats(@PathVariable Long scheduleId, Model model) {
-        model.addAttribute("seats", trainService.getAvailableSeats(scheduleId));
+        List<com.trainmanagement.trainmanagementsystem.entity.Seat> seats = trainService.getSeatsForSchedule(scheduleId);
+        System.out.println("Loading seats for schedule " + scheduleId + ": " + seats.size() + " seats found");
+        for (com.trainmanagement.trainmanagementsystem.entity.Seat seat : seats) {
+            System.out.println("Seat: " + seat.getSeatNumber() + " (Coach: " + seat.getCoachNum() + ", Available: " + seat.isAvailable() + ")");
+        }
+        model.addAttribute("seats", seats);
         model.addAttribute("scheduleId", scheduleId);
         model.addAttribute("bookingRequest", new com.trainmanagement.trainmanagementsystem.dto.BookingRequest());
         return "booking";  // Renders booking.html

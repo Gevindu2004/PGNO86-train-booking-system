@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Train Search</title>
+    <title>Search Trains</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
@@ -14,7 +14,7 @@
     </div>
 
     <div class="card">
-        <form th:action="@{/trains/search}" th:object="${searchRequest}" method="post" class="grid two">
+        <form id="train-search-form" th:action="@{/trains/search}" th:object="${searchRequest}" method="post" class="grid two">
             <div class="form-title">Search Train</div>
             <label>From
                 <input type="text" th:field="*{fromStation}" placeholder="Origin station"/>
@@ -28,8 +28,7 @@
             <label>Time
                 <input type="time" th:field="*{time}"/>
             </label>
-            <div></div>
-            <div style="text-align:right">
+            <div class="full-span" style="text-align:center">
                 <button type="submit">Search</button>
             </div>
         </form>
@@ -41,13 +40,14 @@
         <h2>Available Trains</h2>
         <table>
             <thead>
-                <tr><th>Train</th><th>Departure</th><th>Arrival</th><th></th></tr>
+                <tr><th>Train</th><th>Departure</th><th>Arrival</th><th>Status</th></tr>
             </thead>
             <tbody>
                 <tr th:each="schedule : ${results}">
                     <td th:text="${schedule.train.name}"></td>
                     <td th:text="${schedule.departureTime}"></td>
                     <td th:text="${schedule.arrivalTime}"></td>
+                    <td th:text="${schedule.status}"></td>
                     <td><a class="btn" th:href="@{/trains/seats/{id}(id=${schedule.id})}">View seats & book</a></td>
                 </tr>
             </tbody>

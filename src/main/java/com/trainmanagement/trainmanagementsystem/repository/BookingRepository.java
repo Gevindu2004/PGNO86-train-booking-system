@@ -1,5 +1,5 @@
-package com.trainmanagement.trainmanagementsystem.repository;
 
+package com.trainmanagement.trainmanagementsystem.repository;
 
 import com.trainmanagement.trainmanagementsystem.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
