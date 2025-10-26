@@ -1,0 +1,206 @@
+@startuml Repository Pattern - Train Management System
+
+!theme plain
+skinparam backgroundColor white
+skinparam classBackgroundColor lightblue
+skinparam interfaceBackgroundColor lightgreen
+skinparam entityBackgroundColor lightyellow
+
+package "Train Management System - Repository Pattern" {
+
+    interface "JpaRepository<T, ID>" as JpaRepo {
+        + save(entity: T): T
+        + findById(id: ID): Optional<T>
+        + findAll(): List<T>
+        + deleteById(id: ID): void
+        + count(): long
+        + existsById(id: ID): boolean
+    }
+
+    package "Repository Layer" {
+        
+        class "TrainRepository" as TrainRepo {
+            + findByRoute(route: String): List<Train>
+            + findByNameContaining(name: String): List<Train>
+        }
+        
+        class "TrainScheduleRepository" as ScheduleRepo {
+            + findByDateBetween(startDate: LocalDate, endDate: LocalDate): List<TrainSchedule>
+            + findByFromStationAndToStation(from: String, to: String): List<TrainSchedule>
+            + findByStatus(status: ScheduleStatus): List<TrainSchedule>
+            + findByTrainAndDate(train: Train, date: LocalDate): List<TrainSchedule>
+        }
+        
+        class "PassengerRepository" as PassengerRepo {
+            + findByUsername(username: String): Optional<Passenger>
+            + findByEmail(email: String): Optional<Passenger>
+            + findByRole(role: UserRole): List<Passenger>
+        }
+        
+        class "BookingRepository" as BookingRepo {
+            + findBySchedule(schedule: TrainSchedule): List<Booking>
+            + findByPassengerName(passengerName: String): List<Booking>
+            + findByBookingTimeBetween(start: LocalDateTime, end: LocalDateTime): List<Booking>
+            + findByStatus(status: String): List<Booking>
+        }
+        
+        class "SeatRepository" as SeatRepo {
+            + findByTrainAndSchedule(train: Train, schedule: TrainSchedule): List<Seat>
+            + findByAvailableAndTrain(available: boolean, train: Train): List<Seat>
+            + findByCoachNumAndTrain(coachNum: String, train: Train): List<Seat>
+        }
+        
+        class "PassengerFeedbackRepository" as FeedbackRepo {
+            + findByStatus(status: String): List<PassengerFeedback>
+            + findByPassenger(passenger: Passenger): List<PassengerFeedback>
+            + findByCreatedAtBetween(start: LocalDateTime, end: LocalDateTime): List<PassengerFeedback>
+        }
+        
+        class "AlertRepository" as AlertRepo {
+            + findByPriority(priority: AlertPriority): List<Alert>
+            + findByStatus(status: String): List<Alert>
+            + findByCreatedAtBetween(start: LocalDateTime, end: LocalDateTime): List<Alert>
+        }
+        
+        class "PricingRepository" as PricingRepo {
+            + findByRoute(route: String): List<Pricing>
+            + findByFromStationAndToStation(from: String, to: String): List<Pricing>
+        }
+    }
+
+    package "Entity Layer" {
+        class "Train" as TrainEntity {
+            - Long id
+            - String name
+            - String route
+        }
+        
+        class "TrainSchedule" as ScheduleEntity {
+            - Long scheduleId
+            - LocalDate date
+            - LocalTime departureTime
+            - LocalTime arrivalTime
+            - String fromStation
+            - String toStation
+            - ScheduleStatus status
+        }
+        
+        class "Passenger" as PassengerEntity {
+            - Long id
+            - String fullName
+            - String email
+            - String username
+            - String password
+            - UserRole role
+        }
+        
+        class "Booking" as BookingEntity {
+            - Long id
+            - String passengerName
+            - LocalDateTime bookingTime
+            - String status
+        }
+        
+        class "Seat" as SeatEntity {
+            - Long id
+            - String seatNumber
+            - String coachNum
+            - boolean available
+        }
+        
+        class "PassengerFeedback" as FeedbackEntity {
+            - Long id
+            - String feedback
+            - String status
+            - LocalDateTime createdAt
+        }
+        
+        class "Alert" as AlertEntity {
+            - Long id
+            - String title
+            - String message
+            - AlertPriority priority
+            - String status
+        }
+        
+        class "Pricing" as PricingEntity {
+            - Long id
+            - String route
+            - String fromStation
+            - String toStation
+            - BigDecimal price
+        }
+    }
+
+    package "Service Layer" {
+        class "TrainService" as TrainSvc
+        class "ScheduleService" as ScheduleSvc
+        class "PassengerService" as PassengerSvc
+        class "BookingService" as BookingSvc
+        class "SeatService" as SeatSvc
+        class "FeedbackService" as FeedbackSvc
+        class "AlertService" as AlertSvc
+    }
+}
+
+' Inheritance relationships
+TrainRepo --|> JpaRepo
+ScheduleRepo --|> JpaRepo
+PassengerRepo --|> JpaRepo
+BookingRepo --|> JpaRepo
+SeatRepo --|> JpaRepo
+FeedbackRepo --|> JpaRepo
+AlertRepo --|> JpaRepo
+PricingRepo --|> JpaRepo
+
+' Repository-Entity relationships
+TrainRepo ..> TrainEntity : manages
+ScheduleRepo ..> ScheduleEntity : manages
+PassengerRepo ..> PassengerEntity : manages
+BookingRepo ..> BookingEntity : manages
+SeatRepo ..> SeatEntity : manages
+FeedbackRepo ..> FeedbackEntity : manages
+AlertRepo ..> AlertEntity : manages
+PricingRepo ..> PricingEntity : manages
+
+' Service-Repository relationships
+TrainSvc --> TrainRepo : uses
+ScheduleSvc --> ScheduleRepo : uses
+PassengerSvc --> PassengerRepo : uses
+BookingSvc --> BookingRepo : uses
+SeatSvc --> SeatRepo : uses
+FeedbackSvc --> FeedbackRepo : uses
+AlertSvc --> AlertRepo : uses
+
+note right of JpaRepo
+    Spring Data JPA provides:
+    - Basic CRUD operations
+    - Query method generation
+    - Pagination and sorting
+    - Custom query support
+end note
+
+note right of TrainRepo
+    Custom queries for:
+    - Route-based search
+    - Name-based filtering
+end note
+
+note right of ScheduleRepo
+    Custom queries for:
+    - Date range filtering
+    - Station-based search
+    - Status filtering
+    - Train-specific schedules
+end note
+
+note right of BookingRepo
+    Custom queries for:
+    - Schedule-based bookings
+    - Passenger bookings
+    - Time-based filtering
+    - Status filtering
+end note
+
+@enduml
+

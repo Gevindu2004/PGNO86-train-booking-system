@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Change Seats - Train Management System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/travel-by-train-girl-travels-by-train-b.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+            max-width: 400px;
+        }
+        .seat-grid.coach-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .seat-item {
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        .seat-item.available {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .seat-item.available:hover {
+            border-color: #1e7e34;
+            background: #c3e6cb;
+        }
+        .seat-item.current {
+            border-color: #007bff;
+            background: #cce7ff;
+        }
+        .seat-item.selected {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+        .seat-item.occupied {
+            border-color: #dc3545;
+            background: #f8d7da;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        .coach-section {
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .coach-header {
+            background: #007116;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .coach-seats-container {
+            display: flex;
+            justify-content: center;
+        }
+        .current-seats {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>
+                            <i class="fas fa-exchange-alt me-2"></i>
+                            Change Your Seats
+                        </h2>
+                        <p class="mb-0" th:text="'Booking #' + ${booking.id} + ' - ' + ${schedule.fromStation} + ' to ' + ${schedule.toStation}">Booking Details</p>
+                        <small class="text-light">
+                            <i class="fas fa-clock me-1"></i>
+                            Booked on <span th:text="${#temporals.format(booking.bookingTime, 'MMM dd, yyyy HH:mm')}">Jan 01, 2024 10:00</span>
+                            <span class="ms-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Seat changes allowed within 30 minutes of booking
+                            </span>
+                        </small>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Success/Error Messages -->
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Current Seats -->
+                        <div class="current-seats">
+                            <h5><i class="fas fa-info-circle me-2"></i>Your Current Seats:</h5>
+                            <div class="coach-seats-container">
+                                <div class="seat-grid coach-grid">
+                                    <div th:each="seat : ${currentSeats}" class="seat-item current">
+                                        <div th:text="${seat.seatNumber}">A1-W1</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- All Seats -->
+                        <div th:if="${allSeats.size() > 0}">
+                            <h5><i class="fas fa-chair me-2"></i>Select New Seats:</h5>
+                            
+                            <!-- Legend -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="d-flex gap-3 flex-wrap">
+                                        <span><i class="fas fa-square text-primary me-1"></i> Current Seats</span>
+                                        <span><i class="fas fa-square text-success me-1"></i> Available</span>
+                                        <span><i class="fas fa-square text-warning me-1"></i> Selected</span>
+                                        <span><i class="fas fa-square text-danger me-1"></i> Occupied</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Seats Organized by Coach -->
+                            <div th:each="coach : ${#sets.toSet(allSeats.![coachNum])}" class="coach-section">
+                                <div class="coach-header" th:text="'Coach ' + ${coach}">Coach A1</div>
+                                <div class="coach-seats-container">
+                                    <div class="seat-grid coach-grid">
+                                        <div th:each="seat : ${allSeats}" 
+                                             th:if="${seat.coachNum == coach}"
+                                             th:class="'seat-item ' + (${seat.available} ? 'available' : 'occupied')">
+                                            <!-- Available seats are clickable -->
+                                            <label th:if="${seat.available}"
+                                                   th:for="'seat-' + ${seat.id}">
+                                                <input type="checkbox" 
+                                                       th:id="'seat-' + ${seat.id}"
+                                                       th:value="${seat.id}"
+                                                       name="newSeatIds"
+                                                       class="d-none"
+                                                       onchange="toggleSeatSelection(this)">
+                                                <div th:text="${seat.seatNumber}">A1-W1</div>
+                                            </label>
+                                            <!-- Occupied seats are not clickable -->
+                                            <div th:unless="${seat.available}">
+                                                <div th:text="${seat.seatNumber}">A1-W1</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <button type="button" class="btn btn-primary" onclick="submitSeatChange()">
+                                        <i class="fas fa-check me-2"></i>Update Seats
+                                    </button>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <a th:href="@{/passenger/bookings}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to Bookings
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Seats -->
+                        <div th:if="${allSeats.size() == 0}" class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h5>No Available Seats</h5>
+                            <p class="text-muted">There are no available seats for this schedule at the moment.</p>
+                            <a th:href="@{/passenger/bookings}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Bookings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSeatSelection(checkbox) {
+            const seatItem = checkbox.closest('.seat-item');
+            if (checkbox.checked) {
+                seatItem.classList.remove('available');
+                seatItem.classList.add('selected');
+            } else {
+                seatItem.classList.remove('selected');
+                seatItem.classList.add('available');
+            }
+        }
+
+        function submitSeatChange() {
+            const selectedSeats = Array.from(document.querySelectorAll('input[name="newSeatIds"]:checked'));
+            
+            if (selectedSeats.length === 0) {
+                alert('Please select at least one seat');
+                return;
+            }
+
+            // Create form and submit directly
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = window.location.href;
+
+            selectedSeats.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'newSeatIds';
+                input.value = checkbox.value;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Initialize seat selection display
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('input[name="newSeatIds"]');
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    toggleSeatSelection(checkbox);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

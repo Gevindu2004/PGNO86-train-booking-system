@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Change Profile - Ceylon RailEase</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('/images/360_F_456718486_qULHsJ4Hi44jny4XC9wpu3urUMGfAt0r.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, rgb(0, 113, 22), rgb(0, 58, 13));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .form-group label i {
+            margin-right: 0.5rem;
+            color: #3498db;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .form-group input[readonly] {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 0.25rem;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f8b);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .field-error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .field-error.show {
+            display: block;
+        }
+        
+        .form-group input.error {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+        
+        .form-group input.success {
+            border-color: #27ae60;
+            background-color: #f0f9f0;
+        }
+        
+        .section-divider {
+            margin: 2rem 0;
+            padding-top: 2rem;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+        
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-edit"></i> Change Profile</h1>
+            <p>Update your personal information</p>
+        </div>
+        
+        <div class="content">
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        </div>
+        
+            <!-- Profile Update Form -->
+            <form th:action="@{/passenger/profile/update}" method="post" id="profileForm">
+            <div class="form-group">
+                <label for="fullName">
+                        <i class="fas fa-user"></i> Full Name *
+                </label>
+                <input type="text" id="fullName" name="fullName" th:value="${passenger?.fullName ?: ''}" placeholder="Enter your full name" required>
+                    <div id="fullNameError" class="field-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">
+                        <i class="fas fa-envelope"></i> Email *
+                </label>
+                <input type="email" id="email" name="email" th:value="${passenger?.email ?: ''}" placeholder="Enter your email" required>
+                    <div id="emailError" class="field-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">
+                        <i class="fas fa-phone"></i> Phone Number *
+                </label>
+                <input type="tel" id="phone" name="phone" th:value="${passenger?.phone ?: ''}" placeholder="Enter your phone number" required>
+                    <div id="phoneError" class="field-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-at"></i> Username
+                </label>
+                <input type="text" id="username" name="username" th:value="${passenger?.username ?: #authentication?.name}" required readonly>
+                <small>Username cannot be changed</small>
+            </div>
+            
+                <div class="form-group">
+                    <label for="currentPassword">
+                        <i class="fas fa-lock"></i> Current Password (for verification)
+                    </label>
+                    <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password to verify changes">
+                    <small>Enter your current password to verify the changes</small>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" id="updateBtn">
+                    <i class="fas fa-save"></i> Update Profile
+                </button>
+                </div>
+            </form>
+            
+            <!-- Password Change Section -->
+            <div class="section-divider">
+                <h3 class="section-title">
+                    <i class="fas fa-key"></i> Change Password
+                </h3>
+                <form th:action="@{/passenger/profile/change-password}" method="post" id="passwordForm">
+                    <div class="form-group">
+                        <label for="oldPassword">
+                            <i class="fas fa-lock"></i> Current Password *
+                        </label>
+                        <input type="password" id="oldPassword" name="oldPassword" placeholder="Enter current password" required>
+                        <div id="oldPasswordError" class="field-error"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newPassword">
+                            <i class="fas fa-key"></i> New Password *
+                        </label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required>
+                        <div id="newPasswordError" class="field-error"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">
+                            <i class="fas fa-check"></i> Confirm New Password *
+                        </label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required>
+                        <div id="confirmPasswordError" class="field-error"></div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button type="submit" class="btn btn-primary" id="changePasswordBtn">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Navigation Links -->
+            <div class="nav-links">
+                <a th:href="@{/passenger/dashboard}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a th:href="@{/trains/search}">
+                    <i class="fas fa-search"></i> Search Trains
+                </a>
+                <a th:href="@{/passenger/bookings}">
+                    <i class="fas fa-ticket-alt"></i> My Bookings
+                </a>
+                <a href="#" onclick="showLogoutPopup()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+    </div>
+</div>
+
+<script>
+        // Form validation function for profile update
+        function validateForm() {
+            let isValid = true;
+            
+            // Validate full name
+            const fullName = document.getElementById('fullName');
+            if (!fullName.value.trim()) {
+                showFieldError('fullName', 'Full name is required');
+                isValid = false;
+            } else if (fullName.value.trim().length < 2) {
+                showFieldError('fullName', 'Full name must be at least 2 characters');
+                isValid = false;
+            } else {
+                showFieldSuccess('fullName');
+            }
+            
+            // Validate email
+            const email = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value.trim()) {
+                showFieldError('email', 'Email is required');
+                isValid = false;
+            } else if (!emailRegex.test(email.value.trim())) {
+                showFieldError('email', 'Please enter a valid email address');
+                isValid = false;
+            } else {
+                showFieldSuccess('email');
+            }
+            
+            // Validate phone
+            const phone = document.getElementById('phone');
+            const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+            if (!phone.value.trim()) {
+                showFieldError('phone', 'Phone number is required');
+                isValid = false;
+            } else if (!phoneRegex.test(phone.value.trim())) {
+                showFieldError('phone', 'Please enter a valid phone number');
+                isValid = false;
+            } else {
+                showFieldSuccess('phone');
+            }
+            
+            return isValid;
+        }
+        
+        // Password form validation
+        const passwordForm = document.getElementById('passwordForm');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Clear previous errors
+                clearFieldErrors();
+                
+                // Validate password form
+                if (validatePasswordForm()) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    // Add loading state
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing...';
+                    submitBtn.disabled = true;
+                    
+                    // Submit the form
+                    setTimeout(() => {
+                        passwordForm.submit();
+                    }, 500);
+                }
+            });
+        }
+        
+        // Password form validation function
+        function validatePasswordForm() {
+            let isValid = true;
+            
+            // Validate old password
+            const oldPassword = document.getElementById('oldPassword');
+            if (!oldPassword.value.trim()) {
+                showFieldError('oldPassword', 'Current password is required');
+                isValid = false;
+            } else {
+                showFieldSuccess('oldPassword');
+            }
+            
+            // Validate new password
+            const newPassword = document.getElementById('newPassword');
+            if (!newPassword.value.trim()) {
+                showFieldError('newPassword', 'New password is required');
+                isValid = false;
+            } else if (newPassword.value.length < 8) {
+                showFieldError('newPassword', 'New password must be at least 8 characters');
+                isValid = false;
+            } else {
+                showFieldSuccess('newPassword');
+            }
+            
+            // Validate confirm password
+            const confirmPassword = document.getElementById('confirmPassword');
+            if (!confirmPassword.value.trim()) {
+                showFieldError('confirmPassword', 'Password confirmation is required');
+                isValid = false;
+            } else if (confirmPassword.value !== newPassword.value) {
+                showFieldError('confirmPassword', 'Passwords do not match');
+                isValid = false;
+            } else {
+                showFieldSuccess('confirmPassword');
+            }
+            
+            return isValid;
+        }
+        
+        // Show field error
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + 'Error');
+            
+            field.classList.remove('success');
+            field.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+        
+        // Show field success
+        function showFieldSuccess(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + 'Error');
+            
+            field.classList.remove('error');
+            field.classList.add('success');
+            errorDiv.classList.remove('show');
+        }
+        
+        // Clear all field errors
+        function clearFieldErrors() {
+            const errorDivs = document.querySelectorAll('.field-error');
+            const inputs = document.querySelectorAll('.form-group input');
+            
+            errorDivs.forEach(div => div.classList.remove('show'));
+            inputs.forEach(input => {
+                input.classList.remove('error', 'success');
+            });
+        }
+        
+        // Profile form submission
+        const profileForm = document.getElementById('profileForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Clear previous errors
+                clearFieldErrors();
+                
+                // Validate form
+                if (validateForm()) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                // Add loading state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                submitBtn.disabled = true;
+                
+                    // Submit the form
+                    setTimeout(() => {
+                        profileForm.submit();
+                    }, 500);
+                }
+            });
+        }
+        
+        // Logout function
+        function showLogoutPopup() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+</script>
+</body>
+</html>

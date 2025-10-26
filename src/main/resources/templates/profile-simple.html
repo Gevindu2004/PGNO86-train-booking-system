@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile - Test</title>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+    <h1 style="color: #333;">Profile Page Test</h1>
+    
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h2>Debug Information:</h2>
+        <p><strong>Debug Message:</strong> <span th:text="${debugMessage ?: 'No debug message'}">No debug message</span></p>
+        <p><strong>User:</strong> <span th:text="${passenger?.fullName ?: 'No user data'}">No user data</span></p>
+        <p><strong>Email:</strong> <span th:text="${passenger?.email ?: 'No email'}">No email</span></p>
+        <p><strong>Phone:</strong> <span th:text="${passenger?.phone ?: 'No phone'}">No phone</span></p>
+        
+        <h2>Profile Update Form:</h2>
+        <form th:action="@{/passenger/profile/update}" method="post" style="margin-top: 20px;">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Full Name:</label>
+                <input type="text" name="fullName" th:value="${passenger?.fullName ?: ''}" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Email:</label>
+                <input type="email" name="email" th:value="${passenger?.email ?: ''}" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Phone:</label>
+                <input type="tel" name="phone" th:value="${passenger?.phone ?: ''}" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Current Password (optional):</label>
+                <input type="password" name="currentPassword" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                       placeholder="Enter current password to verify changes">
+            </div>
+            
+            <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                Update Profile
+            </button>
+        </form>
+        
+        <h2>Password Change Form:</h2>
+        <form th:action="@{/passenger/profile/change-password}" method="post" style="margin-top: 20px;">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Current Password:</label>
+                <input type="password" name="oldPassword" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">New Password:</label>
+                <input type="password" name="newPassword" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Confirm New Password:</label>
+                <input type="password" name="confirmPassword" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+            </div>
+            
+            <button type="submit" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+                Change Password
+            </button>
+        </form>
+        
+        <div style="margin-top: 30px;">
+            <a href="/passenger/dashboard" style="color: #007bff; text-decoration: none;">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

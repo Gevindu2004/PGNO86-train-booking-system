@@ -1,110 +1,685 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Book Train</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <link rel="stylesheet" th:href="@{/css/booking.css}">
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>window.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'))</script>
     <style>
+        body {
+            background-image: url('/images/1200x500.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #1a1a1a;
+            margin: 20px auto;
+            max-width: 1000px;
+            padding: 25px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1a1a1a;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+        
+        .header h1 {
+            color: #1a1a1a;
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        /* Back to search button specific styling */
+        .header .btn {
+            background: linear-gradient(135deg, #35dcd6, #236bc8) !important;
+            color: white !important;
+            border: none !important;
+            padding: 12px 24px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            text-decoration: none !important;
+            display: inline-block !important;
+            min-width: 140px !important;
+            text-align: center !important;
+        }
+        
+        .header .btn:hover {
+            background: linear-gradient(135deg, #35dcd6, #236bc8) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.5) !important;
+            color: white !important;
+            text-decoration: none !important;
+        }
+        
+        .header .btn:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3) !important;
+        }
+        
+        .booking-form {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .booking-form h3 {
+            color: #1a1a1a;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .coach-selection {
+            background: rgba(248, 249, 250, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .seat-selection {
+            background: rgba(248, 249, 250, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .seat-selection h3 {
+            color: #1a1a1a;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .legend {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .legend span {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        
+        .seat-grid {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .seat {
+            color: #1a1a1a;
+        }
+        
+        .seat .label {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn.secondary {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn.secondary:hover {
+            background: linear-gradient(135deg, #1e7e34, #155724);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+        }
+        
+        .chip {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #2c3e50;
+            border: 2px solid #dee2e6;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .chip:hover {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+        
+        .chip.selected {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border-color: #007bff;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+        
+        /* Class type labels styling */
+        .coach-selection span[style*="font-weight:700"] {
+            color: #2c3e50 !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+            padding: 8px 16px !important;
+            border-radius: 20px !important;
+            border: 2px solid #2196f3 !important;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2) !important;
+            display: inline-block !important;
+            margin-right: 10px !important;
+        }
+        
+        /* Coach selection container improvements */
+        .coach-selection > div {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .coach-selection > div:last-child {
+            margin-bottom: 0;
+        }
+        
+        #seat-warning {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #f5c6cb;
+            font-weight: 500;
+        }
+        
         /* Hide seat selection by default */
         #seat-selection {
             display: none;
         }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: #2c3e50;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .profile-btn {
+            background: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 25px !important;
+            background-color: #3498db !important;
+            color: white !important;
+            transition: background-color 0.3s !important;
+        }
+        
+        .profile-btn:hover {
+            background-color: #2980b9 !important;
+        }
+        
+        .profile-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .profile-dropdown-content a {
+            color: #2c3e50;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .profile-dropdown-content a:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .profile-dropdown-content a.logout {
+            color: #e74c3c;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .profile-dropdown-content a.logout:hover {
+            background-color: #fdf2f2;
+        }
+        
+        .show {
+            display: block;
+        }
+        
+        .logout-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            text-align: center;
+            display: none;
+        }
+        
+        .logout-popup.show {
+            display: block;
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .popup-overlay.show {
+            display: block;
+        }
+        
+        .popup-icon {
+            font-size: 3rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .popup-buttons {
+            margin-top: 1.5rem;
+        }
+        
+        .popup-btn {
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .popup-btn.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .popup-btn.primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .popup-btn.secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .popup-btn.secondary:hover {
+            background-color: #545b62;
+        }
+
+        
+        /* Add padding to body to account for fixed navbar */
+        body {
+            padding-top: 100px;
+        }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <div class="header">
-        <h1>Available Seats</h1>
-        <a class="btn" th:href="@{/trains/search}">Back to search</a>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <i class="fas fa-train"></i> Ceylon RailEase
+    </a>
+    <div class="navbar-nav">
+        <a th:href="@{/passenger/dashboard}" class="nav-link">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a th:href="@{/passenger/bookings}" class="nav-link">
+            <i class="fas fa-ticket-alt"></i> My Bookings
+        </a>
+        <div class="profile-dropdown" th:if="${isAuthenticated == true}">
+            <button class="profile-btn" onclick="toggleProfileDropdown()">
+                <i class="fas fa-user-circle"></i>
+                <span th:text="${username}">Profile</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="profileDropdown" class="profile-dropdown-content">
+                <a th:href="@{/passenger/profile}">
+                    <i class="fas fa-user-edit"></i> Change Profile
+                </a>
+                <a href="#" class="logout" onclick="showLogoutPopup()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <div th:if="${isAuthenticated == false}">
+            <a th:href="@{/login}" class="nav-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </div>
+</nav>
+    <div class="container">
+        <div class="header">
+            <h1>Available Seats</h1>
+            <a class="btn" th:href="@{/trains/search}">Back to search</a>
+        </div>
+
+        <div class="card booking-form">
+            <form th:object="${bookingRequest}" method="post" id="booking-form" action="/bookings/complete">
+                <input type="hidden" name="scheduleId" th:value="${scheduleId}" />
+
+                <h3>Select Coach</h3>
+
+                <!-- Coach Selection -->
+                <div id="coach-selection" class="coach-selection">
+                    <div style="display:flex; gap:14px; margin:6px 0 12px 0; flex-wrap: wrap; align-items:center;">
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
+                            <span style="font-weight:700; color:#cbd5e1;">First class (A)</span>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('A1')"
+                                data-coach="A1">A1</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('A2')"
+                                data-coach="A2">A2</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('A3')"
+                                data-coach="A3">A3</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('A4')"
+                                data-coach="A4">A4</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('A5')"
+                                data-coach="A5">A5</button>
+                        </div>
+                        <div style="width:1px; height:20px; background: rgba(148,163,184,.35);"></div>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
+                            <span style="font-weight:700; color:#cbd5e1;">Second class (B)</span>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('B1')"
+                                data-coach="B1">B1</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('B2')"
+                                data-coach="B2">B2</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('B3')"
+                                data-coach="B3">B3</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('B4')"
+                                data-coach="B4">B4</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('B5')"
+                                data-coach="B5">B5</button>
+                        </div>
+                        <div style="width:1px; height:20px; background: rgba(148,163,184,.35);"></div>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
+                            <span style="font-weight:700; color:#cbd5e1;">Third class (C)</span>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('C1')"
+                                data-coach="C1">C1</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('C2')"
+                                data-coach="C2">C2</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('C3')"
+                                data-coach="C3">C3</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('C4')"
+                                data-coach="C4">C4</button>
+                            <button type="button" class="chip coach-btn" onclick="selectCoach('C5')"
+                                data-coach="C5">C5</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seat Selection -->
+                <div id="seat-selection" class="seat-selection">
+                    <div id="seat-selection-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>Select Seats <span id="selected-coach-name"></span></h3>
+                        <button type="button" class="btn secondary" onclick="backToCoachSelection()"
+                            id="back-to-coaches-btn" style="display: none;">Back to Coaches</button>
+                    </div>
+
+                    <div class="legend" style="display:flex; gap:12px; align-items:center; margin: 8px 0 12px 0;">
+                        <span class="seat-box free"></span><span>Available</span>
+                        <span class="seat-box reserved"></span><span>Reserved</span>
+                        <span class="seat-box selected"></span><span>Selected</span>
+                    </div>
+
+                    <div class="seat-grid" id="seat-grid">
+                        <div th:if="${seats == null or #lists.isEmpty(seats)}"
+                            style="color: red; padding: 20px; text-align: center;">
+                            No seats found for this schedule. Please check the database.
+                        </div>
+
+                        <label th:each="seat, iter : ${seats}" class="seat"
+                            th:attr="data-seat=${seat.seatNumber}, data-coach=${seat.coachNum}"
+                            th:classappend="${seat.available} ? ' free' : ' reserved'">
+                            <input type="checkbox" th:field="*{seatIds}" th:value="${seat.id}"
+                                th:disabled="${!seat.available}" onchange="syncSelectedClass(this)"
+                                onclick="syncSelectedClass(this)" />
+                            <span class="label" th:text="${seat.seatNumber}"></span>
+                        </label>
+                    </div>
+                </div>
+
+
+                <div class="spacer"></div>
+                <button type="button" id="book-btn" onclick="handleBookClick()" disabled>Book</button>
+                <div id="seat-warning" style="color: #c33; margin-top: 10px; display: none; font-weight: bold;">Please
+                    select at least one seat before booking.</div>
+            </form>
+        </div>
+
+        <div class="spacer"></div>
+
     </div>
 
-    <div class="card booking-form">
-        <form th:action="@{/bookings}" th:object="${bookingRequest}" method="post">
-            <input type="hidden" th:field="*{scheduleId}" th:value="${scheduleId}"/>
-            <label>Passenger Name
-                <input type="text" th:field="*{passengerName}" placeholder="Your full name" class="passenger-name-input"/>
-            </label>
-
-            <h3>Select Coach</h3>
-
-            <!-- Coach Selection -->
-            <div id="coach-selection" class="coach-selection">
-                <div style="display:flex; gap:14px; margin:6px 0 12px 0; flex-wrap: wrap; align-items:center;">
-                    <span style="opacity:.8; margin-right:4px;">Select coach:</span>
-                    <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
-                        <span style="font-weight:700; color:#cbd5e1;">First class (A)</span>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('A1')" data-coach="A1">A1</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('A2')" data-coach="A2">A2</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('A3')" data-coach="A3">A3</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('A4')" data-coach="A4">A4</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('A5')" data-coach="A5">A5</button>
-                    </div>
-                    <div style="width:1px; height:20px; background: rgba(148,163,184,.35);"></div>
-                    <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
-                        <span style="font-weight:700; color:#cbd5e1;">Second class (B)</span>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('B1')" data-coach="B1">B1</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('B2')" data-coach="B2">B2</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('B3')" data-coach="B3">B3</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('B4')" data-coach="B4">B4</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('B5')" data-coach="B5">B5</button>
-                    </div>
-                    <div style="width:1px; height:20px; background: rgba(148,163,184,.35);"></div>
-                    <div style="display:flex; gap:8px; align-items:center; flex-wrap: wrap;">
-                        <span style="font-weight:700; color:#cbd5e1;">Third class (C)</span>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('C1')" data-coach="C1">C1</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('C2')" data-coach="C2">C2</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('C3')" data-coach="C3">C3</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('C4')" data-coach="C4">C4</button>
-                        <button type="button" class="chip coach-btn" onclick="selectCoach('C5')" data-coach="C5">C5</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Seat Selection -->
-            <div id="seat-selection" class="seat-selection">
-                <div id="seat-selection-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3>Select Seats <span id="selected-coach-name"></span></h3>
-                    <button type="button" class="btn secondary" onclick="backToCoachSelection()" id="back-to-coaches-btn" style="display: none;">Back to Coaches</button>
-                </div>
-
-                <div class="legend" style="display:flex; gap:12px; align-items:center; margin: 8px 0 12px 0;">
-                    <span class="seat-box free"></span><span>Available</span>
-                    <span class="seat-box reserved"></span><span>Reserved</span>
-                    <span class="seat-box selected"></span><span>Selected</span>
-                </div>
-
-                <div class="seat-grid" id="seat-grid">
-                    <div th:if="${seats == null or #lists.isEmpty(seats)}" style="color: red; padding: 20px; text-align: center;">
-                        No seats found for this schedule. Please check the database.
-                    </div>
-
-                    <label th:each="seat, iter : ${seats}"
-                           class="seat"
-                           th:attr="data-seat=${seat.seatNumber}, data-coach=${seat.coachNum}"
-                           th:classappend="${seat.available} ? ' free' : ' reserved'">
-                        <input type="checkbox" th:field="*{seatIds}" th:value="${seat.id}" th:disabled="${!seat.available}" onchange="syncSelectedClass(this)" onclick="syncSelectedClass(this)"/>
-                        <span class="label" th:text="${seat.seatNumber}"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="spacer"></div>
-            <button type="submit">Book</button>
-        </form>
+<!-- Logout Popup -->
+<div id="logoutOverlay" class="popup-overlay"></div>
+<div id="logoutPopup" class="logout-popup">
+    <div class="popup-icon">
+        <i class="fas fa-check-circle"></i>
     </div>
-
-    <div class="spacer"></div>
-
-    <div th:if="${booking}" class="card booking-confirmation">
-        <h2>Booking Confirmed!</h2>
-        <p class="booking-reference">Reference: <strong th:text="${booking.id}"></strong></p>
-        <form th:action="@{/bookings/cancel/{id}(id=${booking.id})}" method="post">
-            <button class="btn danger" type="submit">Cancel booking</button>
-        </form>
+    <h3>Logout Successful!</h3>
+    <p>You have been successfully logged out.</p>
+    <div class="popup-buttons">
+        <a href="/passenger/dashboard" class="popup-btn primary">Go to Dashboard</a>
     </div>
 </div>
-<script th:src="@{/js/booking.js}"></script>
+
+    <script th:src="@{/js/booking.js}"></script>
+    <script>
+        // Enable/disable Book button based on seat selection
+        const seatGrid = document.getElementById('seat-grid');
+        const bookBtn = document.getElementById('book-btn');
+        const seatWarning = document.getElementById('seat-warning');
+
+        function updateBookButton() {
+            const checked = seatGrid.querySelectorAll('input[type="checkbox"]:checked').length;
+            bookBtn.disabled = checked === 0;
+            seatWarning.style.display = checked === 0 ? 'block' : 'none';
+            
+        }
+
+        seatGrid.addEventListener('change', updateBookButton);
+        // Initial check
+        updateBookButton();
+        
+        // Navigation bar functionality
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile-btn') && !event.target.closest('.profile-dropdown')) {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+    // Show logout popup
+    function showLogoutPopup() {
+        // Close profile dropdown
+        document.getElementById('profileDropdown').classList.remove('show');
+        
+        // Show popup
+        document.getElementById('logoutOverlay').classList.add('show');
+        document.getElementById('logoutPopup').classList.add('show');
+        
+        // Perform logout after a short delay
+        setTimeout(() => {
+            // Create and submit logout form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/logout';
+            form.style.display = 'none';
+            
+            // Add CSRF token if available
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = csrfToken.getAttribute('content');
+                form.appendChild(csrfInput);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }, 2000);
+    }
+
+        // Close popup when clicking overlay
+        document.getElementById('logoutOverlay').onclick = function() {
+            hideLogoutPopup();
+        }
+
+        function hideLogoutPopup() {
+            document.getElementById('logoutOverlay').classList.remove('show');
+            document.getElementById('logoutPopup').classList.remove('show');
+        }
+
+
+    </script>
 </body>
+
 </html>

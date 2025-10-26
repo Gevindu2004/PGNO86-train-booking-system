@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Booking Details - Ticket Officer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/1200x500.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .btn-danger {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+        }
+        .detail-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #007116;
+        }
+        .status-badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .seat-badge {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            margin: 0.2rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header Card -->
+                <div class="card mb-4">
+                    <div class="card-header text-center">
+                        <h2 class="mb-0">
+                            <i class="fas fa-ticket-alt me-2"></i>Booking Details
+                        </h2>
+                        <p class="mb-0 mt-2">Complete booking information and management</p>
+                        <small>Logged in as: <span th:text="${userRoleDisplay}">Ticket Officer</span></small>
+                    </div>
+                </div>
+
+                <!-- Booking Information -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <!-- Booking Status -->
+                        <div class="text-center mb-4">
+                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(booking.status)}" 
+                                  th:text="${booking.status}">CONFIRMED</span>
+                        </div>
+
+                        <!-- Booking ID and Basic Info -->
+                        <div class="detail-section">
+                            <h5 class="mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Booking Information
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Booking ID:</strong> #<span th:text="${booking.id}">1</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Passenger Name:</strong> 
+                                    <span th:text="${booking.passengerName}">John Doe</span>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Booking Time:</strong> 
+                                    <span th:text="${#temporals.format(booking.bookingTime, 'yyyy-MM-dd HH:mm')}">2025-10-20 07:30</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Status:</strong> 
+                                    <span th:text="${booking.status}">CONFIRMED</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Journey Details -->
+                        <div class="detail-section">
+                            <h5 class="mb-3">
+                                <i class="fas fa-route me-2"></i>Journey Details
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <h6 class="text-primary">From</h6>
+                                    <h4 th:if="${booking.schedule != null}" 
+                                        th:text="${booking.schedule.fromStation}">Colombo</h4>
+                                    <h4 th:if="${booking.schedule == null}" 
+                                        class="text-muted">N/A</h4>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <i class="fas fa-arrow-right fa-2x text-muted"></i>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <h6 class="text-primary">To</h6>
+                                    <h4 th:if="${booking.schedule != null}" 
+                                        th:text="${booking.schedule.toStation}">Kandy</h4>
+                                    <h4 th:if="${booking.schedule == null}" 
+                                        class="text-muted">N/A</h4>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Departure:</strong> 
+                                    <span th:if="${booking.schedule != null}" 
+                                          th:text="${#temporals.format(booking.schedule.departureTime, 'yyyy-MM-dd HH:mm')}">2025-10-20 08:00</span>
+                                    <span th:if="${booking.schedule == null}" 
+                                          class="text-muted">N/A</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Arrival:</strong> 
+                                    <span th:if="${booking.schedule != null}" 
+                                          th:text="${#temporals.format(booking.schedule.arrivalTime, 'yyyy-MM-dd HH:mm')}">2025-10-20 10:30</span>
+                                    <span th:if="${booking.schedule == null}" 
+                                          class="text-muted">N/A</span>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Train:</strong> 
+                                    <span th:if="${booking.schedule != null and booking.schedule.train != null}" 
+                                          th:text="${booking.schedule.train.name}">Express Train</span>
+                                    <span th:if="${booking.schedule == null or booking.schedule.train == null}" 
+                                          class="text-muted">N/A</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Train Number:</strong> 
+                                    <span th:if="${booking.schedule != null and booking.schedule.train != null}" 
+                                          th:text="'T' + ${booking.schedule.train.id}">ET001</span>
+                                    <span th:if="${booking.schedule == null or booking.schedule.train == null}" 
+                                          class="text-muted">N/A</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seat Information -->
+                        <div class="detail-section">
+                            <h5 class="mb-3">
+                                <i class="fas fa-chair me-2"></i>Seat Information
+                            </h5>
+                            <div class="mb-3">
+                                <strong>Total Seats:</strong> 
+                                <span th:if="${booking.seats != null}" 
+                                      th:text="${#lists.size(booking.seats)}">2</span>
+                                <span th:if="${booking.seats == null}" 
+                                      class="text-muted">0</span>
+                            </div>
+                            <div>
+                                <strong>Seat Numbers:</strong><br>
+                                <span th:if="${booking.seats != null and !booking.seats.isEmpty()}" 
+                                      th:each="seat : ${booking.seats}" 
+                                      class="seat-badge"
+                                      th:text="${seat.seatNumber}">A1</span>
+                                <span th:if="${booking.seats == null or booking.seats.isEmpty()}" 
+                                      class="text-muted">No seats assigned</span>
+                            </div>
+                            <div class="mt-3">
+                                <strong>Class Types:</strong><br>
+                                <span th:if="${booking.seats != null and !booking.seats.isEmpty()}" 
+                                      th:each="seat : ${booking.seats}" 
+                                      class="badge bg-info me-1"
+                                      th:text="${seat.coachNum.startsWith('A') ? 'First Class' : (seat.coachNum.startsWith('B') ? 'Second Class' : 'Third Class')}">First Class</span>
+                                <span th:if="${booking.seats == null or booking.seats.isEmpty()}" 
+                                      class="text-muted">No class information available</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="detail-section text-center">
+                            <h5 class="mb-3">
+                                <i class="fas fa-cogs me-2"></i>Actions
+                            </h5>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a th:href="@{/ticket-officer/bookings}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Search
+                                </a>
+                                <form th:action="@{/ticket-officer/bookings/{id}/cancel(id=${booking.id})}" 
+                                      method="post" 
+                                      th:if="${booking.status != 'CANCELLED'}"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Are you sure you want to cancel this booking? This action cannot be undone.')">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-times me-2"></i>Cancel Booking
+                                    </button>
+                                </form>
+                                <a th:href="@{/ticket-officer/dashboard}" class="btn btn-primary">
+                                    <i class="fas fa-home me-2"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Additional Information
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Booking Created:</strong> 
+                                <span th:text="${#temporals.format(booking.bookingTime, 'yyyy-MM-dd HH:mm:ss')}">2025-10-20 07:30:00</span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Last Updated:</strong> 
+                                <span th:text="${booking.bookingTime}">2025-10-20 07:30:00</span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Cancelling a booking will free up the reserved seats and make them available for other passengers.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -2,11 +2,14 @@ package com.trainmanagement.trainmanagementsystem.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "booking")
 @Data
 public class Booking {
     @Id
@@ -16,11 +19,11 @@ public class Booking {
     private LocalDateTime bookingTime;
     private String status = "CONFIRMED";
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
+    private TrainSchedule schedule;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "booking_seats",
             joinColumns = @JoinColumn(name = "booking_id"),
@@ -41,8 +44,8 @@ public class Booking {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public Schedule getSchedule() { return schedule; }
-    public void setSchedule(Schedule schedule) { this.schedule = schedule; }
+    public TrainSchedule getSchedule() { return schedule; }
+    public void setSchedule(TrainSchedule schedule) { this.schedule = schedule; }
 
     public List<Seat> getSeats() { return seats; }
     public void setSeats(List<Seat> seats) { this.seats = seats; }

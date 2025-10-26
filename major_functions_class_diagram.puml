@@ -1,0 +1,361 @@
+@startuml Train Management System - Major 6 Functions Class Diagram
+
+!theme plain
+skinparam classAttributeIconSize 0
+
+' ===== CORE ENTITY CLASSES =====
+class Train {
+    - id : Long
+    - name : String
+    - route : String
+    + getId() : Long
+    + getName() : String
+    + getRoute() : String
+    + getSchedules() : List<TrainSchedule>
+}
+
+class TrainSchedule {
+    - scheduleId : Long
+    - date : LocalDate
+    - departureTime : LocalTime
+    - arrivalTime : LocalTime
+    - fromStation : String
+    - toStation : String
+    - status : ScheduleStatus
+    - lastUpdated : LocalDateTime
+    + getScheduleId() : Long
+    + getDate() : LocalDate
+    + getDepartureTime() : LocalTime
+    + getArrivalTime() : LocalTime
+    + getFromStation() : String
+    + getToStation() : String
+    + getStatus() : ScheduleStatus
+    + getLastUpdated() : LocalDateTime
+    + getTrain() : Train
+}
+
+class Seat {
+    - id : Long
+    - seatNumber : String
+    - coachNum : String
+    - available : boolean
+    + getId() : Long
+    + getSeatNumber() : String
+    + getCoachNum() : String
+    + isAvailable() : boolean
+    + getTrain() : Train
+    + getSchedule() : TrainSchedule
+}
+
+class Booking {
+    - id : Long
+    - passengerName : String
+    - bookingTime : LocalDateTime
+    - status : String
+    - totalAmount : BigDecimal
+    - paymentStatus : PaymentStatus
+    + getId() : Long
+    + getPassengerName() : String
+    + getBookingTime() : LocalDateTime
+    + getStatus() : String
+    + getTotalAmount() : BigDecimal
+    + getPaymentStatus() : PaymentStatus
+    + getSchedule() : TrainSchedule
+    + getSeats() : List<Seat>
+}
+
+class Passenger {
+    - id : Long
+    - fullName : String
+    - email : String
+    - phone : String
+    - username : String
+    - password : String
+    - role : UserRole
+    - isActive : boolean
+    + getId() : Long
+    + getFullName() : String
+    + getEmail() : String
+    + getPhone() : String
+    + getUsername() : String
+    + getRole() : UserRole
+    + isActive() : boolean
+}
+
+class Pricing {
+    - id : Long
+    - fromStation : String
+    - toStation : String
+    - classType : ClassType
+    - price : BigDecimal
+    - effectiveDate : LocalDate
+    + getId() : Long
+    + getFromStation() : String
+    + getToStation() : String
+    + getClassType() : ClassType
+    + getPrice() : BigDecimal
+    + getEffectiveDate() : LocalDate
+}
+
+class PassengerFeedback {
+    - id : Long
+    - passenger : Passenger
+    - booking : Booking
+    - message : String
+    - response : String
+    - status : FeedbackStatus
+    - submittedAt : LocalDateTime
+    - updatedAt : LocalDateTime
+    + getId() : Long
+    + getMessage() : String
+    + getResponse() : String
+    + getStatus() : FeedbackStatus
+    + getSubmittedAt() : LocalDateTime
+    + getUpdatedAt() : LocalDateTime
+    + getPassenger() : Passenger
+    + getBooking() : Booking
+}
+
+class Notification {
+    - id : Long
+    - message : String
+    - type : NotificationType
+    - recipient : Passenger
+    - sentAt : LocalDateTime
+    - isRead : boolean
+    + getId() : Long
+    + getMessage() : String
+    + getType() : NotificationType
+    + getRecipient() : Passenger
+    + getSentAt() : LocalDateTime
+    + isRead() : boolean
+}
+
+class Payment {
+    - id : Long
+    - booking : Booking
+    - amount : BigDecimal
+    - paymentMethod : PaymentMethod
+    - transactionId : String
+    - status : PaymentStatus
+    - processedAt : LocalDateTime
+    + getId() : Long
+    + getAmount() : BigDecimal
+    + getPaymentMethod() : PaymentMethod
+    + getTransactionId() : String
+    + getStatus() : PaymentStatus
+    + getProcessedAt() : LocalDateTime
+    + getBooking() : Booking
+}
+
+' ===== ENUMERATIONS =====
+enum ScheduleStatus {
+    ON_TIME
+    DELAYED
+    CANCELLED
+}
+
+enum UserRole {
+    PASSENGER
+    TRAIN_STATION_MASTER
+    TICKET_OFFICER
+    PASSENGER_EXPERIENCE_ANALYST
+    ADMIN_STAFF
+}
+
+enum ClassType {
+    A
+    B
+    C
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REFUNDED
+}
+
+enum PaymentMethod {
+    CREDIT_CARD
+    DEBIT_CARD
+    MOBILE_PAYMENT
+    BANK_TRANSFER
+}
+
+enum FeedbackStatus {
+    NEW
+    IN_REVIEW
+    RESOLVED
+    CLOSED
+}
+
+enum NotificationType {
+    BOOKING_CONFIRMATION
+    SCHEDULE_UPDATE
+    PAYMENT_CONFIRMATION
+    DELAY_ALERT
+    CANCELLATION_ALERT
+    FEEDBACK_RESPONSE
+}
+
+' ===== MAJOR FUNCTION INTERFACES =====
+interface TrainSearchBookingInterface {
+    + searchTrains(fromStation : String, toStation : String, date : LocalDate) : List<TrainSchedule>
+    + getAvailableSeats(scheduleId : Long) : List<Seat>
+    + selectSeats(scheduleId : Long, seatIds : List<Long>) : List<Seat>
+    + calculatePrice(scheduleId : Long, seatIds : List<Long>) : BigDecimal
+    + bookTickets(scheduleId : Long, seatIds : List<Long>, passengerName : String) : Booking
+    + cancelBooking(bookingId : Long) : boolean
+}
+
+interface RealTimeScheduleManagement {
+    + updateScheduleStatus(scheduleId : Long, status : ScheduleStatus) : TrainSchedule
+    + updateDepartureTime(scheduleId : Long, newTime : LocalTime) : TrainSchedule
+    + updateArrivalTime(scheduleId : Long, newTime : LocalTime) : TrainSchedule
+    + addDelayAlert(scheduleId : Long, delayMinutes : int, reason : String) : void
+    + cancelSchedule(scheduleId : Long, reason : String) : TrainSchedule
+    + getScheduleUpdates(scheduleId : Long) : List<ScheduleUpdate>
+}
+
+interface IntegratedPaymentsETicketing {
+    + processPayment(bookingId : Long, paymentMethod : PaymentMethod, amount : BigDecimal) : Payment
+    + generateETicket(bookingId : Long) : ETicket
+    + sendETicketByEmail(bookingId : Long, email : String) : boolean
+    + validateETicket(ticketId : String) : boolean
+    + refundPayment(bookingId : Long, reason : String) : Payment
+    + getPaymentHistory(passengerId : Long) : List<Payment>
+}
+
+interface PricingManagementInterface {
+    + setPricing(fromStation : String, toStation : String, classType : ClassType, price : BigDecimal) : Pricing
+    + updatePricing(pricingId : Long, newPrice : BigDecimal) : Pricing
+    + getPricing(fromStation : String, toStation : String, classType : ClassType) : BigDecimal
+    + getAllPricing() : List<Pricing>
+    + applySeasonalPricing(pricingId : Long, multiplier : double, startDate : LocalDate, endDate : LocalDate) : Pricing
+    + getPricingHistory(pricingId : Long) : List<PricingHistory>
+}
+
+interface UserManagementInterface {
+    + registerUser(fullName : String, email : String, username : String, password : String) : Passenger
+    + authenticateUser(username : String, password : String) : Passenger
+    + updateProfile(userId : Long, fullName : String, email : String, phone : String) : Passenger
+    + changePassword(userId : Long, oldPassword : String, newPassword : String) : boolean
+    + deactivateUser(userId : Long) : boolean
+    + getUserBookings(userId : Long) : List<Booking>
+    + getUserPreferences(userId : Long) : UserPreferences
+}
+
+interface PassengerComplaintQuestionInterface {
+    + submitFeedback(passengerId : Long, bookingId : Long, message : String, type : FeedbackType) : PassengerFeedback
+    + submitComplaint(passengerId : Long, bookingId : Long, complaint : String, priority : Priority) : PassengerFeedback
+    + submitQuestion(passengerId : Long, question : String, category : QuestionCategory) : PassengerFeedback
+    + getFeedbackHistory(passengerId : Long) : List<PassengerFeedback>
+    + respondToFeedback(feedbackId : Long, response : String, responderId : Long) : PassengerFeedback
+    + escalateFeedback(feedbackId : Long, reason : String) : PassengerFeedback
+}
+
+interface RealTimeNotificationService {
+    + sendNotification(recipientId : Long, message : String, type : NotificationType) : Notification
+    + sendBulkNotification(recipientIds : List<Long>, message : String, type : NotificationType) : List<Notification>
+    + sendScheduleUpdateNotification(scheduleId : Long, updateType : String) : List<Notification>
+    + sendPaymentConfirmation(bookingId : Long) : Notification
+    + sendBookingReminder(bookingId : Long, hoursBefore : int) : Notification
+    + markNotificationAsRead(notificationId : Long) : boolean
+    + getUnreadNotifications(userId : Long) : List<Notification>
+}
+
+' ===== SUPPORTING CLASSES =====
+class ETicket {
+    - id : String
+    - booking : Booking
+    - qrCode : String
+    - generatedAt : LocalDateTime
+    - isValid : boolean
+    + getId() : String
+    + getQRCode() : String
+    + getGeneratedAt() : LocalDateTime
+    + isValid() : boolean
+    + getBooking() : Booking
+}
+
+class ScheduleUpdate {
+    - id : Long
+    - schedule : TrainSchedule
+    - updateType : String
+    - oldValue : String
+    - newValue : String
+    - updatedAt : LocalDateTime
+    + getId() : Long
+    + getUpdateType() : String
+    + getOldValue() : String
+    + getNewValue() : String
+    + getUpdatedAt() : LocalDateTime
+}
+
+class UserPreferences {
+    - userId : Long
+    - notificationEnabled : boolean
+    - emailNotifications : boolean
+    - smsNotifications : boolean
+    - preferredLanguage : String
+    + getUserId() : Long
+    + isNotificationEnabled() : boolean
+    + isEmailNotifications() : boolean
+    + isSmsNotifications() : boolean
+    + getPreferredLanguage() : String
+}
+
+' ===== RELATIONSHIPS =====
+
+' Core Entity Relationships
+Train *-- TrainSchedule : "1 to many"
+Train *-- Seat : "1 to many"
+TrainSchedule *-- Seat : "1 to many"
+TrainSchedule *-- Booking : "1 to many"
+
+Booking o-- TrainSchedule : "belongs to"
+Booking o--o Seat : "many-to-many"
+Booking *-- Payment : "1 to 1"
+Booking *-- ETicket : "1 to 1"
+
+Passenger o-- Booking : "makes"
+Passenger o-- PassengerFeedback : "submits"
+Passenger o-- Notification : "receives"
+Passenger *-- UserPreferences : "1 to 1"
+
+TrainSchedule *-- ScheduleUpdate : "1 to many"
+
+' Enumeration Usage
+TrainSchedule --> ScheduleStatus : uses
+Passenger --> UserRole : uses
+Pricing --> ClassType : uses
+Booking --> PaymentStatus : uses
+Payment --> PaymentMethod : uses
+Payment --> PaymentStatus : uses
+PassengerFeedback --> FeedbackStatus : uses
+Notification --> NotificationType : uses
+
+' Interface to Entity Relationships
+TrainSearchBookingInterface --> TrainSchedule : searches
+TrainSearchBookingInterface --> Seat : manages
+TrainSearchBookingInterface --> Booking : creates
+
+RealTimeScheduleManagement --> TrainSchedule : updates
+RealTimeScheduleManagement --> ScheduleUpdate : creates
+
+IntegratedPaymentsETicketing --> Payment : processes
+IntegratedPaymentsETicketing --> ETicket : generates
+IntegratedPaymentsETicketing --> Booking : for
+
+PricingManagementInterface --> Pricing : manages
+
+UserManagementInterface --> Passenger : manages
+UserManagementInterface --> UserPreferences : manages
+
+PassengerComplaintQuestionInterface --> PassengerFeedback : manages
+
+RealTimeNotificationService --> Notification : sends
+RealTimeNotificationService --> Passenger : to
+
+@enduml

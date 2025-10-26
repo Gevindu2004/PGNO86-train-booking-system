@@ -1,0 +1,197 @@
+@startuml MVC Pattern - Train Management System
+
+!theme plain
+skinparam backgroundColor white
+skinparam classBackgroundColor lightblue
+skinparam controllerBackgroundColor lightgreen
+skinparam viewBackgroundColor lightyellow
+
+package "Train Management System - MVC Pattern" {
+
+    package "View Layer (Templates)" {
+        class "login.html" as LoginView
+        class "dashboard.html" as DashboardView
+        class "search.html" as SearchView
+        class "booking.html" as BookingView
+        class "admin-dashboard.html" as AdminDashboardView
+        class "schedule-form.html" as ScheduleFormView
+        class "train-list.html" as TrainListView
+        class "feedback-form.html" as FeedbackFormView
+    }
+
+    package "Controller Layer" {
+        class "AdminController" as AdminCtrl {
+            + adminDashboard()
+            + manageTrains()
+            + manageSchedules()
+            + viewFeedback()
+            + createAlert()
+        }
+        
+        class "TrainController" as TrainCtrl {
+            + showSearchForm()
+            + searchTrains()
+            + showSeats()
+        }
+        
+        class "BookingController" as BookingCtrl {
+            + showBookingForm()
+            + processBooking()
+            + cancelBooking()
+        }
+        
+        class "PassengerController" as PassengerCtrl {
+            + showDashboard()
+            + showProfile()
+            + updateProfile()
+        }
+        
+        class "SeatManagementController" as SeatCtrl {
+            + manageSeats()
+            + updateSeatStatus()
+        }
+    }
+
+    package "Model Layer (Entities)" {
+        class "Train" as TrainModel {
+            - Long id
+            - String name
+            - String route
+            - List<TrainSchedule> schedules
+            - List<Seat> seats
+        }
+        
+        class "TrainSchedule" as ScheduleModel {
+            - Long scheduleId
+            - LocalDate date
+            - LocalTime departureTime
+            - LocalTime arrivalTime
+            - String fromStation
+            - String toStation
+            - ScheduleStatus status
+            - Train train
+        }
+        
+        class "Passenger" as PassengerModel {
+            - Long id
+            - String fullName
+            - String email
+            - String username
+            - String password
+            - UserRole role
+        }
+        
+        class "Booking" as BookingModel {
+            - Long id
+            - String passengerName
+            - LocalDateTime bookingTime
+            - String status
+            - TrainSchedule schedule
+            - List<Seat> seats
+        }
+        
+        class "Seat" as SeatModel {
+            - Long id
+            - String seatNumber
+            - String coachNum
+            - boolean available
+            - Train train
+            - TrainSchedule schedule
+        }
+    }
+
+    package "Service Layer" {
+        class "TrainService" as TrainSvc {
+            + searchTrains()
+            + getAvailableSeats()
+        }
+        
+        class "BookingService" as BookingSvc {
+            + createBooking()
+            + cancelBooking()
+        }
+        
+        class "PassengerService" as PassengerSvc {
+            + authenticateUser()
+            + updateProfile()
+        }
+        
+        class "ScheduleService" as ScheduleSvc {
+            + createSchedule()
+            + updateSchedule()
+        }
+    }
+
+    package "Repository Layer" {
+        class "TrainRepository" as TrainRepo
+        class "ScheduleRepository" as ScheduleRepo
+        class "PassengerRepository" as PassengerRepo
+        class "BookingRepository" as BookingRepo
+        class "SeatRepository" as SeatRepo
+    }
+}
+
+' View-Controller relationships
+LoginView --> AdminCtrl
+DashboardView --> AdminCtrl
+SearchView --> TrainCtrl
+BookingView --> BookingCtrl
+AdminDashboardView --> AdminCtrl
+ScheduleFormView --> AdminCtrl
+TrainListView --> AdminCtrl
+FeedbackFormView --> AdminCtrl
+
+' Controller-Service relationships
+AdminCtrl --> TrainSvc
+AdminCtrl --> BookingSvc
+AdminCtrl --> PassengerSvc
+AdminCtrl --> ScheduleSvc
+
+TrainCtrl --> TrainSvc
+BookingCtrl --> BookingSvc
+PassengerCtrl --> PassengerSvc
+SeatCtrl --> TrainSvc
+
+' Service-Repository relationships
+TrainSvc --> TrainRepo
+TrainSvc --> ScheduleRepo
+TrainSvc --> SeatRepo
+
+BookingSvc --> BookingRepo
+BookingSvc --> SeatRepo
+
+PassengerSvc --> PassengerRepo
+ScheduleSvc --> ScheduleRepo
+
+' Repository-Model relationships
+TrainRepo --> TrainModel
+ScheduleRepo --> ScheduleModel
+PassengerRepo --> PassengerModel
+BookingRepo --> BookingModel
+SeatRepo --> SeatModel
+
+note right of AdminCtrl
+    Handles admin operations:
+    - Train management
+    - Schedule management
+    - User management
+    - Feedback management
+    - Alert management
+end note
+
+note right of TrainCtrl
+    Handles passenger operations:
+    - Train search
+    - Seat selection
+    - Route information
+end note
+
+note right of BookingCtrl
+    Handles booking operations:
+    - Ticket booking
+    - Booking cancellation
+    - Booking management
+end note
+
+@enduml
+
