@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin - Train Schedules</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/1200x500.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+        .status-ontime {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        .status-delayed {
+            background: linear-gradient(135deg, #ffc107, #ff8f00);
+            color: white;
+        }
+        .status-cancelled {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+        .table tbody tr:hover {
+            background-color: rgba(0, 113, 22, 0.1);
+            transform: translateY(-2px);
+        }
+        .action-buttons .btn {
+            margin: 0 2px;
+            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2><i class="fas fa-train me-2"></i>Train Schedule Management</h2>
+                        <p class="mb-0">Manage train schedules, status updates, and real-time notifications</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Success/Error Messages -->
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span th:text="${warningMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${infoMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span th:text="${infoMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <a th:href="@{/admin/schedules/new}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add New Schedule
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <form th:action="@{/admin/seats/populate-all}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-success" 
+                                            onclick="return confirm('This will generate seats for all schedules that don\'t have seats yet. Continue?')">
+                                        <i class="fas fa-chair me-2"></i>Populate All Seats
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-md-3">
+                                <form th:action="@{/admin/seats/cleanup-orphaned}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-warning" 
+                                            onclick="return confirm('This will permanently delete all seats with null schedule_id. These seats cannot be used for bookings. Continue?')">
+                                        <i class="fas fa-broom me-2"></i>Clean Up Orphaned Seats
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <a th:href="@{/admin/dashboard}" class="btn btn-secondary" th:if="${userRole.name() == 'ADMIN_STAFF'}">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Schedules Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Schedule ID</th>
+                                        <th>Train Number</th>
+                                        <th>Route</th>
+                                        <th>Departure Time</th>
+                                        <th>Arrival Time</th>
+                                        <th>Platform</th>
+                                        <th>Status</th>
+                                        <th>Last Updated</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="schedule : ${schedules}">
+                                        <td>
+                                            <strong th:text="${schedule.scheduleID}">S123456</strong>
+                                        </td>
+                                        <td th:text="${schedule.trainNumber}">T001</td>
+                                        <td th:text="${schedule.route}">Colombo - Kandy</td>
+                                        <td th:text="${#temporals.format(schedule.date, 'yyyy-MM-dd')} + ' ' + ${#temporals.format(schedule.departureTime, 'HH:mm')}">2024-01-15 08:00</td>
+                                        <td th:text="${#temporals.format(schedule.date, 'yyyy-MM-dd')} + ' ' + ${#temporals.format(schedule.arrivalTime, 'HH:mm')}">2024-01-15 10:30</td>
+                                        <td>
+                                            <span class="badge bg-info" th:text="${schedule.platform}">Platform 1</span>
+                                        </td>
+                                        <td>
+                                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(schedule.statusString)}" 
+                                                  th:text="${schedule.statusString}">OnTime</span>
+                                        </td>
+                                        <td th:text="${#temporals.format(schedule.lastUpdated, 'MM/dd HH:mm')}">01/15 08:00</td>
+                                        <td class="action-buttons">
+                                            <a th:href="@{/admin/schedules/edit/{id}(id=${schedule.scheduleId})}" 
+                                               class="btn btn-warning btn-sm" title="Edit Schedule">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            
+                                            <a th:href="@{/admin/seats/schedule/{id}(id=${schedule.scheduleId})}" 
+                                               class="btn btn-success btn-sm" title="Manage Seats">
+                                                <i class="fas fa-chair"></i>
+                                            </a>
+                                            
+                                            <!-- Status Update Dropdown -->
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-info btn-sm dropdown-toggle" 
+                                                        data-bs-toggle="dropdown" title="Update Status">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <form th:action="@{/admin/schedules/update-status/{id}(id=${schedule.scheduleId})}" 
+                                                              method="post" style="display: inline;">
+                                                            <input type="hidden" name="status" value="OnTime">
+                                                            <button type="submit" class="dropdown-item text-success">
+                                                                <i class="fas fa-check-circle me-2"></i>Set On Time
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form th:action="@{/admin/schedules/update-status/{id}(id=${schedule.scheduleId})}" 
+                                                              method="post" style="display: inline;">
+                                                            <input type="hidden" name="status" value="Delayed">
+                                                            <button type="submit" class="dropdown-item text-warning">
+                                                                <i class="fas fa-clock me-2"></i>Set Delayed
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form th:action="@{/admin/schedules/update-status/{id}(id=${schedule.scheduleId})}" 
+                                                              method="post" style="display: inline;">
+                                                            <input type="hidden" name="status" value="Cancelled">
+                                                            <button type="submit" class="dropdown-item text-danger">
+                                                                <i class="fas fa-ban me-2"></i>Set Cancelled
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            
+                                            <form th:action="@{/admin/schedules/delete/{id}(id=${schedule.scheduleId})}" 
+                                                  method="post" style="display: inline;" 
+                                                  onsubmit="return confirm('Are you sure you want to delete this schedule?')">
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Delete Schedule">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${schedules.isEmpty()}">
+                                        <td colspan="9" class="text-center text-muted py-4">
+                                            <i class="fas fa-train fa-3x mb-3"></i>
+                                            <h5>No schedules found</h5>
+                                            <p>Click "Add New Schedule" to create your first train schedule.</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Statistics -->
+                        <div class="row mt-4">
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="text-primary" th:text="${schedules.size()}">0</h5>
+                                        <small class="text-muted">Total Schedules</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="text-success" th:text="${#lists.size(#lists.select(schedules, statusString == 'OnTime'))}">0</h5>
+                                        <small class="text-muted">On Time</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="text-warning" th:text="${#lists.size(#lists.select(schedules, statusString == 'Delayed'))}">0</h5>
+                                        <small class="text-muted">Delayed</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="text-danger" th:text="${#lists.size(#lists.select(schedules, statusString == 'Cancelled'))}">0</h5>
+                                        <small class="text-muted">Cancelled</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+/* Welcome Page Specific Styles */
+
+/* Hero section enhancements */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+}
+
+.hero-card {
+  display: inline-block;
+  padding: 40px 50px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 1s ease-out;
+}
+
+.hero-title {
+  font-size: 64px;
+  line-height: 1.1;
+  margin: 0 0 20px 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, #ffffff, #e5e7eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.hero-subtitle {
+  font-size: 22px;
+  color: #cbd5e1;
+  margin: 0 0 30px 0;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  font-weight: 300;
+  letter-spacing: 0.3px;
+}
+
+/* CTA Button enhancements */
+.cta {
+  display: inline-block;
+  padding: 18px 36px;
+  border-radius: 50px;
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  font-weight: 700;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.4s ease;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.cta:hover::before {
+  left: 100%;
+}
+
+.cta-orange {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border: none;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4), 0 4px 0 rgba(0, 0, 0, 0.2) inset;
+}
+
+.cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(34, 197, 94, 0.5), 0 6px 0 rgba(0, 0, 0, 0.2) inset;
+  filter: brightness(1.1);
+}
+
+.cta:active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4), 0 2px 0 rgba(0, 0, 0, 0.2) inset;
+}
+
+/* Floating animation */
+.floating {
+  animation: floatY 3s ease-in-out infinite;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes floatY {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-10px); 
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes titleGlow {
+  from {
+    text-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+  to {
+    text-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+  }
+}
+
+/* Background overlay enhancements */
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hero-card {
+    padding: 30px 35px;
+    margin: 20px;
+  }
+  
+  .hero-title {
+    font-size: 48px;
+    margin-bottom: 15px;
+  }
+  
+  .hero-subtitle {
+    font-size: 18px;
+    margin-bottom: 25px;
+  }
+  
+  .cta {
+    padding: 16px 32px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-card {
+    padding: 25px 30px;
+    margin: 15px;
+  }
+  
+  .hero-title {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  
+  .hero-subtitle {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .cta {
+    padding: 14px 28px;
+    font-size: 15px;
+  }
+}
+
+/* Loading animation */
+.loading {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Particle effect background (optional) */
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: particleFloat 6s infinite linear;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}

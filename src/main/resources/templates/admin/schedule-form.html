@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${isEdit ? 'Edit Schedule' : 'Create Schedule'}">Create Schedule</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/IMG-20240903-WA0012_x4cc22.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #007116;
+            box-shadow: 0 0 0 0.2rem rgba(0, 113, 22, 0.25);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .status-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .status-option {
+            flex: 1;
+            min-width: 120px;
+        }
+        .status-option input[type="radio"] {
+            display: none;
+        }
+        .status-option label {
+            display: block;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .status-option input[type="radio"]:checked + label {
+            border-color: #007116;
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+        }
+        .status-option label:hover {
+            border-color: #007116;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>
+                            <i class="fas fa-train me-2"></i>
+                            <span th:text="${isEdit ? 'Edit Train Schedule' : 'Create New Train Schedule'}">Create Schedule</span>
+                        </h2>
+                        <p class="mb-0">Fill in the details below to manage train schedule</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Success/Error Messages -->
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <form th:action="@{/admin/schedules/save}" th:object="${schedule}" method="post">
+                            <input type="hidden" name="isEdit" th:value="${isEdit}">
+                            
+                            <div class="row">
+                                <!-- Schedule ID (Read-only for edit) -->
+                                <div class="col-md-6 mb-3" th:if="${isEdit}">
+                                    <label for="scheduleId" class="form-label">Schedule ID</label>
+                                    <input type="text" class="form-control" id="scheduleId" 
+                                           th:field="*{scheduleId}" readonly>
+                                </div>
+
+                                <!-- Train Selection -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="trainName" class="form-label">Train Name *</label>
+                                    <input type="text" class="form-control" id="trainName" 
+                                           name="trainName" required
+                                           th:value="${trainName}"
+                                           placeholder="e.g., Udarata Menike, Podi Menike, Express Train">
+                                    <div class="form-text">Enter the train name manually. If the train doesn't exist, it will be created automatically.</div>
+                                </div>
+
+                                <!-- From Station -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="fromStation" class="form-label">From Station *</label>
+                                    <input type="text" class="form-control" id="fromStation" 
+                                           th:field="*{fromStation}" required
+                                           placeholder="e.g., Colombo">
+                                </div>
+
+                                <!-- To Station -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="toStation" class="form-label">To Station *</label>
+                                    <input type="text" class="form-control" id="toStation" 
+                                           th:field="*{toStation}" required
+                                           placeholder="e.g., Kandy">
+                                </div>
+
+                                <!-- Date -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="date" class="form-label">Date *</label>
+                                    <input type="date" class="form-control" id="date" 
+                                           th:field="*{date}" required>
+                                </div>
+
+                                <!-- Departure Time -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="departureTime" class="form-label">Departure Time *</label>
+                                    <input type="time" class="form-control" id="departureTime" 
+                                           th:field="*{departureTime}" required>
+                                </div>
+
+                                <!-- Arrival Time -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="arrivalTime" class="form-label">Arrival Time *</label>
+                                    <input type="time" class="form-control" id="arrivalTime" 
+                                           th:field="*{arrivalTime}" required>
+                                </div>
+
+                                <!-- Status -->
+                                <div class="col-12 mb-4">
+                                    <label class="form-label">Schedule Status *</label>
+                                    <div class="status-options">
+                                        <div class="status-option">
+                                            <input type="radio" id="statusOnTime" name="status" value="ON_TIME" 
+                                                   th:field="*{status}" th:checked="${schedule.status == T(com.trainmanagement.trainmanagementsystem.entity.TrainSchedule$ScheduleStatus).ON_TIME}">
+                                            <label for="statusOnTime">
+                                                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                                <div>On Time</div>
+                                                <small>Running as scheduled</small>
+                                            </label>
+                                        </div>
+                                        <div class="status-option">
+                                            <input type="radio" id="statusDelayed" name="status" value="DELAYED" 
+                                                   th:field="*{status}" th:checked="${schedule.status == T(com.trainmanagement.trainmanagementsystem.entity.TrainSchedule$ScheduleStatus).DELAYED}">
+                                            <label for="statusDelayed">
+                                                <i class="fas fa-clock fa-2x mb-2"></i>
+                                                <div>Delayed</div>
+                                                <small>Running behind schedule</small>
+                                            </label>
+                                        </div>
+                                        <div class="status-option">
+                                            <input type="radio" id="statusCancelled" name="status" value="CANCELLED" 
+                                                   th:field="*{status}" th:checked="${schedule.status == T(com.trainmanagement.trainmanagementsystem.entity.TrainSchedule$ScheduleStatus).CANCELLED}">
+                                            <label for="statusCancelled">
+                                                <i class="fas fa-ban fa-2x mb-2"></i>
+                                                <div>Cancelled</div>
+                                                <small>Service cancelled</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <hr class="my-4">
+                                    <div class="d-flex justify-content-between">
+                                        <a th:href="@{/admin/schedules}" class="btn btn-secondary">
+                                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>
+                                            <span th:text="${isEdit ? 'Update Schedule' : 'Create Schedule'}">Save</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const departureTime = document.getElementById('departureTime');
+            const arrivalTime = document.getElementById('arrivalTime');
+
+            // Validate arrival time is after departure time
+            function validateTimes() {
+                if (departureTime.value && arrivalTime.value) {
+                    const departure = new Date(departureTime.value);
+                    const arrival = new Date(arrivalTime.value);
+                    
+                    if (arrival <= departure) {
+                        arrivalTime.setCustomValidity('Arrival time must be after departure time');
+                    } else {
+                        arrivalTime.setCustomValidity('');
+                    }
+                }
+            }
+
+            departureTime.addEventListener('change', validateTimes);
+            arrivalTime.addEventListener('change', validateTimes);
+
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                validateTimes();
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${train.id == null ? 'Add New Train' : 'Edit Train'}">Train Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/360_F_456718486_qULHsJ4Hi44jny4XC9wpu3urUMGfAt0r.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #007116;
+            box-shadow: 0 0 0 0.2rem rgba(0, 113, 22, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 113, 22, 0.3);
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .help-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>
+                            <i class="fas fa-train me-2"></i>
+                            <span th:text="${train.id == null ? 'Add New Train' : 'Edit Train'}">Train Form</span>
+                        </h2>
+                        <p class="mb-0" th:text="${train.id == null ? 'Create a new train for the system' : 'Update train information'}">Form Description</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Success/Error Messages -->
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <form th:action="@{/admin/trains/save}" th:object="${train}" method="post">
+                            <input type="hidden" th:field="*{id}" />
+
+                            <div class="mb-4">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Train Name
+                                </label>
+                                <input type="text" 
+                                       th:field="*{name}" 
+                                       class="form-control" 
+                                       id="name" 
+                                       placeholder="e.g., Udarata Menike, Podi Menike, Intercity Express"
+                                       required>
+                                <div class="help-text">
+                                    Enter a descriptive name for the train (e.g., Udarata Menike, Podi Menike)
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="route" class="form-label">
+                                    <i class="fas fa-route me-2"></i>Route
+                                </label>
+                                <input type="text" 
+                                       th:field="*{route}" 
+                                       class="form-control" 
+                                       id="route" 
+                                       placeholder="e.g., Colombo - Kandy, Kandy - Ella, Colombo - Galle"
+                                       required>
+                                <div class="help-text">
+                                    Enter the route description (e.g., Colombo - Kandy, Kandy - Ella)
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${train.id == null ? 'Create Train' : 'Update Train'}">Save</span>
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <a th:href="@{/admin/trains}" class="btn btn-secondary w-100">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Train Information Card -->
+                        <div class="mt-4" th:if="${train.id != null}">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>Train Information
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Train ID:</strong> <span th:text="${train.id}">1</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Created:</strong> <span class="text-muted">Auto-generated</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            After creating this train, you can add schedules and manage seats.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const nameInput = document.getElementById('name');
+            const routeInput = document.getElementById('route');
+            
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                // Clear previous validation
+                nameInput.classList.remove('is-invalid');
+                routeInput.classList.remove('is-invalid');
+                
+                // Validate train name
+                if (!nameInput.value.trim()) {
+                    nameInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                // Validate route
+                if (!routeInput.value.trim()) {
+                    routeInput.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

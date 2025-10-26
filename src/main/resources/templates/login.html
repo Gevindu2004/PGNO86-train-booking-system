@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Passenger Login</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>window.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'))</script>
+    <style>
+        .error {
+            color: #c33;
+            background: #fee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            color: #155724;
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            color: #cbd5e1;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid rgba(148, 163, 184, .35);
+            border-radius: 4px;
+            background: rgba(15, 23, 42, .6);
+            color: #e5e7eb;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #22c55e;
+            color: #0b1020;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button:hover {
+            filter: brightness(1.05);
+        }
+
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #374151;
+            color: #e5e7eb;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #4b5563;
+            color: #ffffff;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Passenger Login</h2>
+        <div th:if="${param.error}" class="error" th:text="${param.error}"></div>
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+        <div th:if="${logoutSuccess}" class="success" th:text="${logoutSuccess}"></div>
+        <div th:text="${message}" style="margin-bottom: 20px;"></div>
+        <form th:action="@{/login/passenger}" method="post">
+            <label>Username:
+                <input type="text" name="username" required />
+            </label>
+            <label>Password:
+                <input type="password" name="password" required />
+            </label>
+            <!-- Hidden field to preserve redirect URL -->
+            <input type="hidden" name="redirectUrl" th:value="${redirectUrl}" />
+            <button type="submit">Login</button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <p>Don't have an account? <a th:href="@{/register}">Register here</a></p>
+            <a th:href="@{/passenger/dashboard}" class="btn-back">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+
+</html>

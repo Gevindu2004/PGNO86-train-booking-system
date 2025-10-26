@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>System Alerts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/360_F_456718486_qULHsJ4Hi44jny4XC9wpu3urUMGfAt0r.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .alert-card {
+            border-left: 5px solid #0d6efd;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .no-alerts {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .no-alerts i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2><i class="fas fa-bell me-2"></i>System Alerts & Notifications</h2>
+                        <p class="mb-0">Stay updated with the latest announcements</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-4">
+                            <h4>Current Alerts</h4>
+                        </div>
+
+                        <div th:if="${alerts.isEmpty()}" class="no-alerts">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <h5>All Clear!</h5>
+                            <p>There are no system alerts at the moment. All services are running normally.</p>
+                        </div>
+
+                        <div th:if="${!alerts.isEmpty()}">
+                            <div th:each="alert : ${alerts}" class="card alert-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-exclamation-triangle text-warning me-3 mt-1"></i>
+                                        <div class="flex-grow-1">
+                                            <p class="card-text mb-3" style="white-space: pre-wrap;" th:text="${alert.message}">Alert message content...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-muted bg-light">
+                                    <small>
+                                        <i class="fas fa-user me-1"></i>
+                                        Posted by <strong th:text="${alert.postedBy.username}">admin</strong> on
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        <span th:text="${#temporals.format(alert.postedAt, 'yyyy-MM-dd HH:mm')}">2023-10-27 10:00</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a th:href="@{/passenger/dashboard}" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head('Post New Alert')"></head>
+<body>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+        <div class="card">
+            <div class="card-header">
+                <h2>Post a New Alert or Notification</h2>
+            </div>
+            <div class="card-body">
+                <form action="#" th:action="@{/admin/alerts/create}" th:object="${alert}" method="post">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Alert Message</label>
+                        <textarea th:field="*{message}" class="form-control" id="message" rows="5" required placeholder="Enter the alert message for all users..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Alert</button>
+                    <a href="/" th:href="@{/}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

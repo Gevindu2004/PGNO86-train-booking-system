@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head('My Feedback History')"></head>
+<body>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">My Feedback History</h1>
+            <a href="/" th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+        </div>
+
+        <div th:if="${feedbackList.isEmpty()}">
+            <div class="alert alert-info" role="alert">
+                You have not submitted any feedback yet. <a href="/feedback/new" th:href="@{/feedback/new}" class="alert-link">Submit your first feedback!</a>
+            </div>
+        </div>
+
+        <div th:if="${!feedbackList.isEmpty()}" class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Message</th>
+                        <th>Submitted At</th>
+                        <th>Status</th>
+                        <th>Analyst Response</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="feedback : ${feedbackList}">
+                        <td th:text="${feedback.id}">1</td>
+                        <td style="white-space: pre-wrap;" th:text="${feedback.message}">Message content...</td>
+                        <td th:text="${#temporals.format(feedback.submittedAt, 'yyyy-MM-dd HH:mm')}">2023-10-27 10:00</td>
+                        <td><span class="badge bg-info" th:text="${feedback.status}">New</span></td>
+                        <td>
+                            <p th:if="${feedback.response != null and !feedback.response.isEmpty()}" style="white-space: pre-wrap;" th:text="${feedback.response}"></p>
+                            <span th:if="${feedback.response == null or feedback.response.isEmpty()}" class="text-muted">No response yet.</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

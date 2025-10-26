@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Passenger Registration</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
+    <style>
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: #2c3e50;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Add padding to body to account for fixed navbar */
+        body {
+            padding-top: 80px;
+        }
+        .error { color: #c33; background: #fee; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .success { color: #3c3; background: #efe; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .password-requirements { font-size: 12px; color: #666; margin: 5px 0; }
+        .password-valid { color: #28a745; }
+        .password-invalid { color: #dc3545; }
+        label { display: block; margin: 10px 0; }
+        input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <i class="fas fa-train"></i> Ceylon RailEase
+    </a>
+    <div class="navbar-nav">
+        <a th:href="@{/passenger/dashboard}" class="nav-link">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a th:href="@{/passenger/bookings}" class="nav-link">
+            <i class="fas fa-ticket-alt"></i> My Bookings
+        </a>
+        <a th:href="@{/login}" class="nav-link">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Passenger Registration</h2>
+    <div th:if="${param.error}" class="error">
+        <strong>Error:</strong> <span th:text="${param.error}"></span>
+    </div>
+    <div th:if="${param.success}" class="success">
+        <strong>Success:</strong> <span th:text="${param.success}"></span>
+    </div>
+    <div th:text="${message}" style="margin-bottom: 20px;"></div>
+    
+    <form th:action="@{/register/passenger}" method="post">
+        <label>Full Name:
+            <input type="text" name="fullName" required/>
+        </label>
+        <label>Email:
+            <input type="email" name="email" required/>
+        </label>
+        <label>Phone Number:
+            <input type="tel" name="phone" required/>
+        </label>
+        <label>Username:
+            <input type="text" name="username" required/>
+        </label>
+        <label>Password:
+            <input type="password" name="password" id="password" required minlength="8" onkeyup="validatePassword()"/>
+            <div class="password-requirements">
+                <div id="length-check">✓ At least 8 characters</div>
+                <div id="symbol-check">✓ Must contain a symbol (!@#$%^&*)</div>
+            </div>
+        </label>
+        <label>Confirm Password:
+            <input type="password" name="confirmPassword" id="confirmPassword" required onkeyup="validatePassword()"/>
+            <div id="match-check" class="password-requirements"></div>
+        </label>
+        <button type="submit">Register</button>
+    </form>
+    
+    <div style="margin-top: 20px; text-align: center;">
+        <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+        <a th:href="@{/trains/search}">Back to Search</a>
+    </div>
+</div>
+
+<script>
+function validatePassword() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const submitButton = document.querySelector('button[type="submit"]');
+    
+    // Check password length (at least 8 characters)
+    const lengthCheck = document.getElementById('length-check');
+    const hasMinLength = password.length >= 8;
+    lengthCheck.className = hasMinLength ? 'password-valid' : 'password-invalid';
+    lengthCheck.textContent = (hasMinLength ? '✓' : '✗') + ' At least 8 characters';
+    
+    // Check for symbol (!@#$%^&*)
+    const symbolCheck = document.getElementById('symbol-check');
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    symbolCheck.className = hasSymbol ? 'password-valid' : 'password-invalid';
+    symbolCheck.textContent = (hasSymbol ? '✓' : '✗') + ' Must contain a symbol (!@#$%^&*)';
+    
+    // Check password match
+    const matchCheck = document.getElementById('match-check');
+    if (confirmPassword.length > 0) {
+        const passwordsMatch = password === confirmPassword;
+        matchCheck.className = passwordsMatch ? 'password-valid' : 'password-invalid';
+        matchCheck.textContent = (passwordsMatch ? '✓' : '✗') + ' Passwords match';
+    } else {
+        matchCheck.textContent = '';
+    }
+    
+    // Enable/disable submit button
+    const isValid = hasMinLength && hasSymbol && password === confirmPassword && password.length > 0;
+    submitButton.disabled = !isValid;
+}
+
+// Add form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        console.log('Form submission started');
+        console.log('Password length:', password.length);
+        console.log('Has symbol:', /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password));
+        console.log('Passwords match:', password === confirmPassword);
+        
+        // Final validation
+        if (password.length < 8) {
+            e.preventDefault();
+            alert('Password must be at least 8 characters long.');
+            return;
+        }
+        
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            e.preventDefault();
+            alert('Password must contain at least one symbol (!@#$%^&*).');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match.');
+            return;
+        }
+        
+        console.log('Form validation passed, submitting...');
+    });
+});
+</script>
+</body>
+</html>

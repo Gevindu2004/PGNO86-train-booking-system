@@ -6,6 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Entity
+@Table(name = "train")
 @Data
 public class Train {
     @Id
@@ -15,7 +16,7 @@ public class Train {
     private String route;  // e.g., "Colombo-Kandy"
 
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL)
-    private List<Schedule> schedules;
+    private List<TrainSchedule> schedules;
 
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL)
     private List<Seat> seats;
@@ -30,8 +31,8 @@ public class Train {
     public String getRoute() { return route; }
     public void setRoute(String route) { this.route = route; }
     
-    public List<Schedule> getSchedules() { return schedules; }
-    public void setSchedules(List<Schedule> schedules) { this.schedules = schedules; }
+    public List<TrainSchedule> getSchedules() { return schedules; }
+    public void setSchedules(List<TrainSchedule> schedules) { this.schedules = schedules; }
     
     public List<Seat> getSeats() { return seats; }
     public void setSeats(List<Seat> seats) { this.seats = seats; }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head('Schedule Form')"></head>
+<body>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+        <h1 th:if="${schedule.id == null}">Create New Schedule</h1>
+        <h1 th:if="${schedule.id != null}">Edit Schedule</h1>
+
+        <form action="#" th:action="@{/admin/schedules/save}" th:object="${schedule}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="mb-3">
+                <label for="train" class="form-label">Train</label>
+                <select th:field="*{train}" id="train" class="form-select">
+                    <option value="">Select a Train</option>
+                    <option th:each="train : ${trains}"
+                            th:value="${train.id}"
+                            th:text="${train.name}"
+                            th:selected="${schedule.train != null && schedule.train.id == train.id}"></option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="origin" class="form-label">Origin</label>
+                <input type="text" th:field="*{origin}" class="form-control" id="origin" placeholder="Origin Station">
+            </div>
+
+            <div class="mb-3">
+                <label for="destination" class="form-label">Destination</label>
+                <input type="text" th:field="*{destination}" class="form-control" id="destination" placeholder="Destination Station">
+            </div>
+
+            <div class="mb-3">
+                <label for="departureTime" class="form-label">Departure Time</label>
+                <input type="datetime-local" th:field="*{departureTime}" class="form-control" id="departureTime">
+            </div>
+
+            <div class="mb-3">
+                <label for="arrivalTime" class="form-label">Arrival Time</label>
+                <input type="datetime-local" th:field="*{arrivalTime}" class="form-control" id="arrivalTime">
+            </div>
+
+            <div class="mb-3">
+                <label for="fare" class="form-label">Fare</label>
+                <input type="number" step="0.01" th:field="*{fare}" class="form-control" id="fare" placeholder="0.00">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Schedule</button>
+            <a href="/admin/schedules" th:href="@{/admin/schedules}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
