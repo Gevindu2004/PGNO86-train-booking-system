@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Profile Test</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Profile Page Test</h1>
+    <p>If you can see this, the template is working!</p>
+    <p th:if="${debugMessage}" th:text="${debugMessage}"></p>
+    <p th:if="${passenger}" th:text="'Passenger: ' + ${passenger.fullName}"></p>
+    <p th:if="${error}" th:text="'Error: ' + ${error}"></p>
+    
+    <form th:action="@{/passenger/profile/update}" method="post">
+        <div>
+            <label>Full Name:</label>
+            <input type="text" name="fullName" th:value="${passenger?.fullName ?: ''}" required>
+        </div>
+        <div>
+            <label>Email:</label>
+            <input type="email" name="email" th:value="${passenger?.email ?: ''}" required>
+        </div>
+        <div>
+            <label>Phone:</label>
+            <input type="tel" name="phone" th:value="${passenger?.phone ?: ''}" required>
+        </div>
+        <div>
+            <label>Current Password:</label>
+            <input type="password" name="currentPassword">
+        </div>
+        <button type="submit">Update Profile</button>
+    </form>
+</body>
+</html>

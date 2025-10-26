@@ -1,0 +1,210 @@
+@startuml Service Layer Pattern - Train Management System
+
+!theme plain
+skinparam backgroundColor white
+skinparam classBackgroundColor lightblue
+skinparam interfaceBackgroundColor lightgreen
+skinparam controllerBackgroundColor lightyellow
+
+package "Train Management System - Service Layer Pattern" {
+
+    package "Controller Layer" {
+        class "AdminController" as AdminCtrl
+        class "TrainController" as TrainCtrl
+        class "BookingController" as BookingCtrl
+        class "PassengerController" as PassengerCtrl
+        class "SeatManagementController" as SeatCtrl
+    }
+
+    package "Service Layer (Business Logic)" {
+        
+        class "TrainService" as TrainSvc {
+            + searchTrains(searchRequest: SearchRequest): List<TrainSchedule>
+            + getAvailableSeats(scheduleId: Long): List<Seat>
+            + getAllTrains(): List<Train>
+            + createTrain(train: Train): Train
+            + updateTrain(id: Long, train: Train): Train
+            + deleteTrain(id: Long): void
+        }
+        
+        class "ScheduleService" as ScheduleSvc {
+            + createSchedule(schedule: TrainSchedule): TrainSchedule
+            + updateSchedule(id: Long, schedule: TrainSchedule): TrainSchedule
+            + getAllSchedules(): List<TrainSchedule>
+            + getScheduleById(id: Long): TrainSchedule
+            + deleteSchedule(id: Long): void
+            + updateScheduleStatus(id: Long, status: ScheduleStatus): void
+        }
+        
+        class "PassengerService" as PassengerSvc {
+            + authenticateUser(username: String, password: String): boolean
+            + getCurrentUser(): Passenger
+            + updateProfile(passenger: Passenger): Passenger
+            + createPassenger(passenger: Passenger): Passenger
+            + getAllPassengers(): List<Passenger>
+            + getPassengerById(id: Long): Passenger
+            + deletePassenger(id: Long): void
+        }
+        
+        class "BookingService" as BookingSvc {
+            + createBooking(booking: Booking): Booking
+            + cancelBooking(id: Long): void
+            + getBookingById(id: Long): Booking
+            + getBookingsByPassenger(passengerName: String): List<Booking>
+            + getAllBookings(): List<Booking>
+            + updateBookingStatus(id: Long, status: String): void
+        }
+        
+        class "SeatService" as SeatSvc {
+            + getAvailableSeatsForSchedule(scheduleId: Long): List<Seat>
+            + reserveSeat(seatId: Long): void
+            + releaseSeat(seatId: Long): void
+            + createSeat(seat: Seat): Seat
+            + updateSeat(seat: Seat): Seat
+            + deleteSeat(id: Long): void
+        }
+        
+        class "PassengerFeedbackService" as FeedbackSvc {
+            + createFeedback(feedback: PassengerFeedback): PassengerFeedback
+            + updateFeedbackStatus(id: Long, status: String): void
+            + findAll(): List<PassengerFeedback>
+            + getFeedbackById(id: Long): PassengerFeedback
+            + getFeedbackByStatus(status: String): List<PassengerFeedback>
+        }
+        
+        class "AlertService" as AlertSvc {
+            + createAlert(alert: Alert): Alert
+            + updateAlertStatus(id: Long, status: String): void
+            + findAllSorted(): List<Alert>
+            + getAlertById(id: Long): Alert
+            + getAlertsByPriority(priority: AlertPriority): List<Alert>
+        }
+        
+        class "TrainScheduleService" as TrainScheduleSvc {
+            + getAllSchedules(): List<TrainSchedule>
+            + createSchedule(schedule: TrainSchedule): TrainSchedule
+            + updateSchedule(schedule: TrainSchedule): TrainSchedule
+            + deleteSchedule(id: Long): void
+            + getScheduleById(id: Long): TrainSchedule
+        }
+    }
+
+    package "Repository Layer" {
+        class "TrainRepository" as TrainRepo
+        class "TrainScheduleRepository" as ScheduleRepo
+        class "PassengerRepository" as PassengerRepo
+        class "BookingRepository" as BookingRepo
+        class "SeatRepository" as SeatRepo
+        class "PassengerFeedbackRepository" as FeedbackRepo
+        class "AlertRepository" as AlertRepo
+    }
+
+    package "Utility Classes" {
+        class "RoleBasedAccessControl" as RBAC {
+            + isAuthenticated(): boolean
+            + getCurrentUser(): Passenger
+            + hasAdminStaffAccess(): boolean
+            + canAccessAdminDashboard(): boolean
+            + getUserRoleDisplayName(role: UserRole): String
+        }
+    }
+
+    package "DTO Classes" {
+        class "SearchRequest" as SearchDTO {
+            - String fromStation
+            - String toStation
+            - LocalDate travelDate
+        }
+    }
+}
+
+' Controller-Service relationships
+AdminCtrl --> TrainSvc : uses
+AdminCtrl --> ScheduleSvc : uses
+AdminCtrl --> PassengerSvc : uses
+AdminCtrl --> BookingSvc : uses
+AdminCtrl --> FeedbackSvc : uses
+AdminCtrl --> AlertSvc : uses
+AdminCtrl --> TrainScheduleSvc : uses
+AdminCtrl --> RBAC : uses
+
+TrainCtrl --> TrainSvc : uses
+TrainCtrl --> SeatSvc : uses
+
+BookingCtrl --> BookingSvc : uses
+BookingCtrl --> SeatSvc : uses
+
+PassengerCtrl --> PassengerSvc : uses
+PassengerCtrl --> BookingSvc : uses
+
+SeatCtrl --> SeatSvc : uses
+
+' Service-Repository relationships
+TrainSvc --> TrainRepo : uses
+TrainSvc --> ScheduleRepo : uses
+TrainSvc --> SeatRepo : uses
+
+ScheduleSvc --> ScheduleRepo : uses
+TrainScheduleSvc --> ScheduleRepo : uses
+
+PassengerSvc --> PassengerRepo : uses
+
+BookingSvc --> BookingRepo : uses
+BookingSvc --> SeatRepo : uses
+
+SeatSvc --> SeatRepo : uses
+
+FeedbackSvc --> FeedbackRepo : uses
+
+AlertSvc --> AlertRepo : uses
+
+' Service-DTO relationships
+TrainSvc --> SearchDTO : uses
+
+' Service-Utility relationships
+PassengerSvc --> RBAC : uses
+
+note right of TrainSvc
+    Business logic for:
+    - Train search operations
+    - Seat availability checking
+    - Train management operations
+end note
+
+note right of ScheduleSvc
+    Business logic for:
+    - Schedule creation and updates
+    - Schedule status management
+    - Schedule queries
+end note
+
+note right of BookingSvc
+    Business logic for:
+    - Booking creation and cancellation
+    - Booking status management
+    - Passenger booking queries
+end note
+
+note right of PassengerSvc
+    Business logic for:
+    - User authentication
+    - Profile management
+    - User role management
+end note
+
+note right of SeatSvc
+    Business logic for:
+    - Seat reservation
+    - Seat availability management
+    - Seat status updates
+end note
+
+note right of RBAC
+    Utility for:
+    - Role-based access control
+    - Authentication checking
+    - Permission validation
+end note
+
+@enduml
+

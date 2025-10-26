@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <style>
+        
+        /* Enhanced hero animations */
+        .hero-card {
+            animation: slideInUp 1s ease-out 0.3s both;
+        }
+        
+        .hero-title {
+            animation: fadeInDown 1s ease-out 0.5s both;
+        }
+        
+        .hero-subtitle {
+            animation: fadeInUp 1s ease-out 0.7s both;
+        }
+        
+        .cta {
+            animation: bounceIn 1s ease-out 0.9s both;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Enhanced floating animation */
+        .floating {
+            animation: floatY 2.6s ease-in-out infinite, pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 12px 24px rgba(0,0,0,.25);
+            }
+            50% {
+                box-shadow: 0 16px 32px rgba(0,0,0,.35);
+            }
+        }
+    </style>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('ready');
+        });
+    </script>
+</head>
+<body th:style="'background-image:url(' + @{/images/Shutterstock1481121296.jpg} + ');background-size:cover;background-position:center;background-attachment:fixed'">
+<div class="bg-overlay"></div>
+
+<div class="hero">
+    <div class="hero-card">
+        <h1 class="hero-title">Welcome to Ceylon RailEase</h1>
+        <p class="hero-subtitle">From Station to Destination—Smarter, Faster, RailEase.</p>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <a class="cta cta-orange floating" th:href="@{/passenger}">Visit</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+

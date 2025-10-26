@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Passenger Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/passenger.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
+    <style>
+        body {
+            padding-top: 80px;
+            opacity: 0;
+            animation: fadeInPage 0.8s ease-out forwards;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        
+        html {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInPage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Page entrance animations */
+        .navbar {
+            animation: slideInDown 0.6s ease-out;
+        }
+        
+        .p-hero {
+            animation: slideInUp 0.8s ease-out 0.2s both;
+        }
+        
+        .grid .panel {
+            animation: fadeInUp 0.6s ease-out both;
+        }
+        
+        .grid .panel:nth-child(1) { animation-delay: 0.3s; }
+        .grid .panel:nth-child(2) { animation-delay: 0.4s; }
+        .grid .panel:nth-child(3) { animation-delay: 0.5s; }
+        
+        .actions {
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Enhanced panel hover effects */
+        .panel {
+            transition: all 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* Button hover animations */
+        .btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            box-sizing: border-box;
+            z-index: 9999 !important;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        
+        /* Ensure no other elements interfere with navbar */
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Prevent any transform or position changes that might affect navbar */
+        .navbar * {
+            position: static !important;
+            transform: none !important;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: #2c3e50;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            background-color: #3498db;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        
+        .profile-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .profile-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .profile-dropdown-content a {
+            color: #2c3e50;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .profile-dropdown-content a:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .profile-dropdown-content a.logout {
+            color: #e74c3c;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .profile-dropdown-content a.logout:hover {
+            background-color: #fdf2f2;
+        }
+        
+        .show {
+            display: block;
+        }
+        
+        .logout-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            text-align: center;
+            display: none;
+        }
+        
+        .logout-popup.show {
+            display: block;
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .popup-overlay.show {
+            display: block;
+        }
+        
+        .popup-icon {
+            font-size: 3rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .popup-buttons {
+            margin-top: 1.5rem;
+        }
+        
+        .popup-btn {
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .popup-btn.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .popup-btn.primary:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            right: 0;
+            width: 350px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sidebar-content {
+            padding: 1rem;
+        }
+        
+        .alert-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .alert-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .alert-item.urgent {
+            border-left-color: #e74c3c;
+        }
+        
+        .alert-item.warning {
+            border-left-color: #f39c12;
+        }
+        
+        .alert-item.info {
+            border-left-color: #3498db;
+        }
+        
+        .alert-message {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert-time {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .alert-type {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert-type.delay {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .alert-type.cancellation {
+            background: #c0392b;
+            color: white;
+        }
+        
+        .alert-type.maintenance {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .alert-type.general {
+            background: #3498db;
+            color: white;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: #3498db;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-toggle:hover {
+            background: #2980b9;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .sidebar-toggle .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .no-alerts {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+        }
+        
+        .no-alerts i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Adjust main content when sidebar is open */
+        .wrapper {
+            transition: margin-right 0.3s ease;
+        }
+        
+        .wrapper.sidebar-open {
+            margin-right: 350px;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(100%);
+            }
+            
+            .wrapper.sidebar-open {
+                margin-right: 0;
+            }
+            
+            .sidebar-toggle {
+                right: 10px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body th:style="'background-image:url(' + @{/images/Shutterstock1481121296.jpg} + ');background-size:cover;background-position:center;background-attachment:fixed'">
+<div class="bg-overlay"></div>
+
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <i class="fas fa-train"></i> Ceylon RailEase
+    </a>
+    <div class="navbar-nav">
+        <a th:href="@{/passenger/dashboard}" class="nav-link" style="background-color: #f8f9fa;">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a th:href="@{/passenger/bookings}" class="nav-link">
+            <i class="fas fa-ticket-alt"></i> My Bookings
+        </a>
+        <a th:href="@{/feedback/my-feedback}" class="nav-link">
+            <i class="fas fa-comment-dots"></i> My Feedback
+        </a>
+        <a th:href="@{/alerts}" class="nav-link">
+            <i class="fas fa-bell"></i> Alerts
+        </a>
+        <div class="profile-dropdown" th:if="${isAuthenticated == true}">
+            <button class="profile-btn" onclick="toggleProfileDropdown()">
+                <i class="fas fa-user-circle"></i>
+                <span th:text="${currentUser != null ? currentUser.username : 'Profile'}">Profile</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="profileDropdown" class="profile-dropdown-content">
+                <a th:href="@{/passenger/profile}">
+                    <i class="fas fa-user-edit"></i> Change Profile
+                </a>
+                <a href="#" class="logout" onclick="showLogoutPopup()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <div th:if="${isAuthenticated == false}">
+            <a th:href="@{/login}" class="nav-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="wrapper">
+    <div class="p-hero">
+        <h1>Ceylon RailEase</h1>
+        <p>Access bookings, search trains, and manage your trips.</p>
+    </div>
+
+    <div class="grid">
+        <div class="panel">
+            <div class="cover" th:style="'background-image:url(' + @{/images/609a8ebb8e41be32e4ce446a.webp} + ');'"></div>
+            <div class="content">
+                <h2>Search Trains</h2>
+                <p>Find schedules and check available seats.</p>
+                <a class="cta cta-orange" th:href="@{/trains/search}">Go to Search</a>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="cover" th:style="'background-image:url(' + @{/images/train-tickets-1-687881.jpg} + ');'"></div>
+            <div class="content">
+                <h2>My Bookings</h2>
+                <p>View recent bookings and cancellation options.</p>
+                <a class="cta cta-orange" th:href="@{/passenger/bookings}">View Bookings</a>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="cover" style="background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=60');"></div>
+            <div class="content">
+                <h2>Support</h2>
+                <p>Get help and contact customer service.</p>
+                <a class="cta cta-orange" th:href="@{/feedback/my-feedback}">Contact</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a class="cta" th:href="@{/}">Back to Home</a>
+    </div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button class="sidebar-toggle" onclick="toggleSidebar()" th:if="${recentAlerts != null and !recentAlerts.empty}">
+    <i class="fas fa-bell"></i>
+    <span class="badge" th:text="${recentAlerts.size()}">0</span>
+</button>
+
+<!-- Alerts Sidebar -->
+<div id="alertsSidebar" class="sidebar" th:if="${recentAlerts != null and !recentAlerts.empty}">
+    <div class="sidebar-header">
+        <h3>
+            <i class="fas fa-exclamation-triangle"></i>
+            Recent Alerts
+        </h3>
+    </div>
+    <div class="sidebar-content">
+        <div th:each="alert : ${recentAlerts}" class="alert-item" th:classappend="${#strings.contains(alert.message, 'DELAY') ? 'urgent' : (#strings.contains(alert.message, 'CANCELLATION') ? 'urgent' : (#strings.contains(alert.message, 'MAINTENANCE') ? 'warning' : 'info'))}">
+            <div class="alert-type" th:classappend="${#strings.contains(alert.message, 'DELAY') ? 'delay' : (#strings.contains(alert.message, 'CANCELLATION') ? 'cancellation' : (#strings.contains(alert.message, 'MAINTENANCE') ? 'maintenance' : 'general'))}">
+                <span th:text="${#strings.contains(alert.message, 'DELAY') ? 'Delay' : (#strings.contains(alert.message, 'CANCELLATION') ? 'Cancellation' : (#strings.contains(alert.message, 'MAINTENANCE') ? 'Maintenance' : 'General'))}">General</span>
+            </div>
+            <div class="alert-message" th:text="${alert.message}">Alert message</div>
+            <div class="alert-time">
+                <i class="fas fa-clock"></i>
+                <span th:text="${#temporals.format(alert.postedAt, 'MMM dd, HH:mm')}">Time</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Empty state for sidebar when no alerts -->
+<div id="alertsSidebar" class="sidebar" th:if="${recentAlerts == null or recentAlerts.empty}">
+    <div class="sidebar-header">
+        <h3>
+            <i class="fas fa-exclamation-triangle"></i>
+            Recent Alerts
+        </h3>
+    </div>
+    <div class="sidebar-content">
+        <div class="no-alerts">
+            <i class="fas fa-bell-slash"></i>
+            <p>No recent alerts</p>
+            <small>All systems are running normally</small>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Popup -->
+<div id="logoutOverlay" class="popup-overlay"></div>
+<div id="logoutPopup" class="logout-popup">
+    <div class="popup-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <h3>Logout Successful!</h3>
+    <p>You have been successfully logged out.</p>
+    <div class="popup-buttons">
+        <a href="/passenger/dashboard" class="popup-btn primary">Go to Dashboard</a>
+    </div>
+</div>
+
+<script>
+    // Toggle profile dropdown
+    function toggleProfileDropdown() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    window.onclick = function(event) {
+        if (!event.target.matches('.profile-btn') && !event.target.closest('.profile-dropdown')) {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        }
+    }
+
+    // Show logout popup
+    function showLogoutPopup() {
+        // Close profile dropdown
+        document.getElementById('profileDropdown').classList.remove('show');
+        
+        // Show popup
+        document.getElementById('logoutOverlay').classList.add('show');
+        document.getElementById('logoutPopup').classList.add('show');
+        
+        // Perform logout after a short delay
+        setTimeout(() => {
+            // Create and submit logout form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/logout';
+            form.style.display = 'none';
+            
+            // Add CSRF token if available
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = csrfToken.getAttribute('content');
+                form.appendChild(csrfInput);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }, 2000);
+    }
+
+    // Close popup when clicking overlay
+    document.getElementById('logoutOverlay').onclick = function() {
+        hideLogoutPopup();
+    }
+
+    function hideLogoutPopup() {
+        document.getElementById('logoutOverlay').classList.remove('show');
+        document.getElementById('logoutPopup').classList.remove('show');
+    }
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+        const sidebar = document.getElementById('alertsSidebar');
+        const wrapper = document.querySelector('.wrapper');
+        
+        if (sidebar && wrapper) {
+            sidebar.classList.toggle('open');
+            wrapper.classList.toggle('sidebar-open');
+        }
+    }
+    
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('alertsSidebar');
+        const toggleBtn = document.querySelector('.sidebar-toggle');
+        
+        if (sidebar && sidebar.classList.contains('open')) {
+            if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+                document.querySelector('.wrapper').classList.remove('sidebar-open');
+            }
+        }
+    });
+    
+    // Page loading animation
+    window.addEventListener('DOMContentLoaded', function() {
+        
+        // Add click animations to navigation links
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Add ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add ripple effect CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .nav-link {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+</body>
+</html>
+
+

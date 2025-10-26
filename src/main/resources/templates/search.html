@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Trains</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>window.addEventListener('DOMContentLoaded',()=>document.body.classList.add('ready'))</script>
+    <style>
+        /* Page entrance animations */
+        body {
+            padding-top: 80px;
+            opacity: 0;
+            animation: fadeInPage 0.8s ease-out forwards;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        
+        html {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInPage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Navbar animations */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 9999 !important;
+            width: 100% !important;
+            box-sizing: border-box;
+            animation: slideInDown 0.6s ease-out;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        
+        /* Ensure no other elements interfere with navbar */
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Prevent any transform or position changes that might affect navbar */
+        .navbar * {
+            position: static !important;
+            transform: none !important;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-link {
+            color: #2c3e50;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .profile-btn {
+            background: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 25px !important;
+            background-color: #3498db !important;
+            color: white !important;
+            transition: background-color 0.3s !important;
+        }
+        
+        .profile-btn:hover {
+            background-color: #2980b9 !important;
+        }
+        
+        .profile-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .profile-dropdown-content a {
+            color: #2c3e50;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        .profile-dropdown-content a:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .profile-dropdown-content a.logout {
+            color: #e74c3c;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .profile-dropdown-content a.logout:hover {
+            background-color: #fdf2f2;
+        }
+        
+        .show {
+            display: block;
+        }
+        
+        .logout-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            text-align: center;
+            display: none;
+        }
+        
+        .logout-popup.show {
+            display: block;
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .popup-overlay.show {
+            display: block;
+        }
+        
+        .popup-icon {
+            font-size: 3rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .popup-buttons {
+            margin-top: 1.5rem;
+        }
+        
+        .popup-btn {
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .popup-btn.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .popup-btn.primary:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Content animations */
+        .header {
+            animation: slideInUp 0.8s ease-out 0.2s both;
+        }
+        
+        .card {
+            animation: slideInUp 0.8s ease-out 0.4s both;
+            background: white !important;
+            border: none !important;
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+       /*title color */
+        .card-header {
+            background: linear-gradient(135deg, #003a0d 0%, #007116 100%) !important;
+            color: white !important;
+            padding: 1.5rem 2rem !important;
+            border-radius: 15px 15px 0 0 !important;
+            margin: 0 !important;
+        }
+        
+        .card-header h1 {
+            color: white !important;
+            font-size: 1.8rem !important;
+            font-weight: 700 !important;
+            margin: 0 !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-header .subtitle {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 1rem !important;
+            margin-top: 0.5rem !important;
+            font-weight: 400 !important;
+        }
+        
+        .card-body {
+            padding: 2rem !important;
+        }
+        
+        .card:nth-child(2) {
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Form animations */
+        .form-title {
+            animation: fadeInDown 0.6s ease-out 0.8s both;
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 1.5rem !important;
+            margin-bottom: 1.5rem !important;
+            text-align: center !important;
+        }
+        
+        .grid label {
+            animation: fadeInUp 0.6s ease-out both;
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            margin-bottom: 8px !important;
+            display: block !important;
+        }
+        
+        .grid label:nth-child(2) { animation-delay: 1.0s; }
+        .grid label:nth-child(3) { animation-delay: 1.1s; }
+        .grid label:nth-child(4) { animation-delay: 1.2s; }
+        .grid label:nth-child(5) { animation-delay: 1.3s; }
+        
+        .full-span {
+            animation: fadeInUp 0.6s ease-out 1.4s both;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Enhanced input animations */
+        input[type="text"], input[type="date"], input[type="time"] {
+            transition: all 0.3s ease;
+            background-color: #f8f9fa !important;
+            border: 2px solid #dee2e6 !important;
+            border-radius: 12px !important;
+            padding: 14px 18px !important;
+            font-size: 1rem !important;
+            font-weight: 500 !important;
+            color: #2c3e50 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        input[type="text"]:focus, input[type="date"]:focus, input[type="time"]:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3) !important;
+            border-color: #3498db !important;
+            background-color: white !important;
+            outline: none !important;
+        }
+        
+        /* Placeholder styling */
+        input[type="text"]::placeholder, input[type="date"]::placeholder, input[type="time"]::placeholder {
+            color: #6c757d !important;
+            font-weight: 400 !important;
+            opacity: 0.8 !important;
+        }
+        
+        input[type="text"]:focus::placeholder, input[type="date"]:focus::placeholder, input[type="time"]:focus::placeholder {
+            opacity: 0.5 !important;
+        }
+        
+        /* Available Trains section styling */
+        .card h2:not(.form-title) {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 1.3rem !important;
+            margin-bottom: 1rem !important;
+            text-align: left !important;
+            padding-left: 15px;
+        }
+        
+        .card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card table th {
+            color: #34495e !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+            padding: 12px 15px !important;
+            background-color: #eef2f6 !important;
+            border-bottom: 2px solid #dce0e6 !important;
+            text-align: left !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .card table td {
+            color: #34495e !important;
+            padding: 10px 15px !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+            font-size: 0.95rem !important;
+            vertical-align: middle;
+        }
+        
+        .card table tr:last-child td {
+            border-bottom: none !important;
+        }
+        
+        .card table tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+        
+        .card table .btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 8px 15px !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2) !important;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .card table .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3) !important;
+        }
+        
+        /* No results styling */
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        
+        /* Button animations */
+        button {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 14px 30px !important;
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.3) !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.4) !important;
+        }
+        
+        /* Table animations */
+        table {
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+        
+        table tbody tr {
+            animation: slideInLeft 0.6s ease-out both;
+        }
+        
+        table tbody tr:nth-child(1) { animation-delay: 1.0s; }
+        table tbody tr:nth-child(2) { animation-delay: 1.1s; }
+        table tbody tr:nth-child(3) { animation-delay: 1.2s; }
+        table tbody tr:nth-child(4) { animation-delay: 1.3s; }
+        table tbody tr:nth-child(5) { animation-delay: 1.4s; }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Navigation link animations */
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+            background-color: #f8f9fa;
+        }
+        
+        /* Profile dropdown animations */
+        .profile-dropdown-content {
+            animation: slideInDown 0.3s ease-out;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Popup animations */
+        .logout-popup {
+            animation: popupIn 0.3s ease-out;
+        }
+        
+        @keyframes popupIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        .popup-overlay {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+    </head>
+<body th:style="'background-image:url(' + @{/images/Shutterstock1481121296.jpg} + ');background-size:cover;background-position:center;background-attachment:fixed'">
+<div class="bg-overlay"></div>
+
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <i class="fas fa-train"></i> Ceylon RailEase
+    </a>
+    <div class="navbar-nav">
+        <a th:href="@{/passenger/dashboard}" class="nav-link">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a th:href="@{/passenger/bookings}" class="nav-link">
+            <i class="fas fa-ticket-alt"></i> My Bookings
+        </a>
+        <div class="profile-dropdown" th:if="${isAuthenticated == true}">
+            <button class="profile-btn" onclick="toggleProfileDropdown()">
+                <i class="fas fa-user-circle"></i>
+                <span th:text="${username}">Profile</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="profileDropdown" class="profile-dropdown-content">
+                <a th:href="@{/passenger/profile}">
+                    <i class="fas fa-user-edit"></i> Change Profile
+                </a>
+                <a href="#" class="logout" onclick="showLogoutPopup()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        <div th:if="${isAuthenticated == false}">
+            <a th:href="@{/login}" class="nav-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <i class="fas fa-search"></i>
+                Train Search
+            </h1>
+            <div class="subtitle">Find and book your perfect train journey</div>
+        </div>
+        <div class="card-body">
+            <form id="train-search-form" th:action="@{/trains/search}" method="post" class="grid two">
+            <label>From *
+                <input type="text" name="fromStation" placeholder="Origin station" th:value="${searchRequest?.fromStation}" required/>
+            </label>
+            <label>To *
+                <input type="text" name="toStation" placeholder="Destination station" th:value="${searchRequest?.toStation}" required/>
+            </label>
+            <label>Date
+                <input type="date" name="date" id="dateInput" th:value="${searchRequest?.date}" th:min="${T(java.time.LocalDate).now()}"/>
+                <div id="dateError" class="date-error"></div>
+            </label>
+            <label>Time
+                <input type="time" name="time" th:value="${searchRequest?.time}"/>
+            </label>
+            <div class="full-span" style="text-align:center">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                    Search Trains
+                </button>
+                
+            </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div th:if="${results != null}" class="card">
+        <div class="card-header">
+            <h1>
+                <i class="fas fa-train"></i>
+                Available Trains
+            </h1>
+            <div class="subtitle">Select your preferred train and book your journey</div>
+        </div>
+        <div class="card-body">
+            <!-- Error Message -->
+            <div th:if="${error != null}" class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}"></span>
+            </div>
+            
+            
+            <div th:if="${results.empty}" class="no-results">
+                <i class="fas fa-search" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                <h3 style="color: #6c757d; margin-bottom: 0.5rem;">No trains found</h3>
+                <p style="color: #6c757d;">Please try different search criteria or check back later.</p>
+            </div>
+            <table th:if="${!results.empty}">
+            <thead>
+                <tr><th>Train</th><th>Route</th><th>Departure</th><th>Arrival</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="schedule : ${results}">
+                    <td th:text="${schedule.train.name}"></td>
+                    <td th:text="${schedule.fromStation + ' - ' + schedule.toStation}"></td>
+                    <td th:text="${schedule.departureTime}"></td>
+                    <td th:text="${schedule.arrivalTime}"></td>
+                    <td th:text="${schedule.status}"></td>
+                    <td><a class="btn" th:href="@{/trains/seats/{id}(id=${schedule.scheduleId})}">View seats & book</a></td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Popup -->
+<div id="logoutOverlay" class="popup-overlay"></div>
+<div id="logoutPopup" class="logout-popup">
+    <div class="popup-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <h3>Logout Successful!</h3>
+    <p>You have been successfully logged out.</p>
+    <div class="popup-buttons">
+        <a href="/passenger/dashboard" class="popup-btn primary">Go to Dashboard</a>
+    </div>
+</div>
+
+<script>
+    // Toggle profile dropdown
+    function toggleProfileDropdown() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    window.onclick = function(event) {
+        if (!event.target.matches('.profile-btn') && !event.target.closest('.profile-dropdown')) {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        }
+    }
+
+    // Show logout popup
+    function showLogoutPopup() {
+        // Close profile dropdown
+        document.getElementById('profileDropdown').classList.remove('show');
+        
+        // Show popup
+        document.getElementById('logoutOverlay').classList.add('show');
+        document.getElementById('logoutPopup').classList.add('show');
+        
+        // Perform logout after a short delay
+        setTimeout(() => {
+            // Create and submit logout form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/logout';
+            form.style.display = 'none';
+            
+            // Add CSRF token if available
+            const csrfToken = document.querySelector('meta[name="_csrf"]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = csrfToken.getAttribute('content');
+                form.appendChild(csrfInput);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }, 2000);
+    }
+
+    // Close popup when clicking overlay
+    document.getElementById('logoutOverlay').onclick = function() {
+        hideLogoutPopup();
+    }
+
+    function hideLogoutPopup() {
+        document.getElementById('logoutOverlay').classList.remove('show');
+        document.getElementById('logoutPopup').classList.remove('show');
+    }
+    
+    // Show date error message
+    function showDateError(message) {
+        const errorDiv = document.getElementById('dateError');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+    }
+    
+    // Enhanced page animations
+    window.addEventListener('DOMContentLoaded', function() {
+        // Set minimum date to today
+        const dateInput = document.getElementById('dateInput');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+            
+            // Add change event listener for real-time validation
+            dateInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (this.value && selectedDate < today) {
+                    this.style.borderColor = '#e74c3c';
+                    this.style.animation = 'shake 0.5s ease-in-out';
+                    showDateError('Please select today\'s date or a future date.');
+                } else {
+                    this.style.borderColor = '#22c55e';
+                    // Clear any existing error
+                    const errorDiv = document.getElementById('dateError');
+                    if (errorDiv) {
+                        errorDiv.textContent = '';
+                        errorDiv.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Add input event listener for immediate feedback
+            dateInput.addEventListener('input', function() {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (this.value && selectedDate < today) {
+                    this.style.borderColor = '#e74c3c';
+                    showDateError('Please select today\'s date or a future date.');
+                } else if (this.value) {
+                    this.style.borderColor = '#22c55e';
+                    // Clear any existing error
+                    const errorDiv = document.getElementById('dateError');
+                    if (errorDiv) {
+                        errorDiv.textContent = '';
+                        errorDiv.classList.remove('show');
+                    }
+                } else {
+                    this.style.borderColor = '#e9ecef';
+                }
+            });
+        }
+        // Add ripple effect to navigation links
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add ripple effect CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .nav-link {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(52, 152, 219, 0.3);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add form validation animations
+        const form = document.getElementById('train-search-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const inputs = form.querySelectorAll('input[required]');
+                const dateInput = document.getElementById('dateInput');
+                let hasErrors = false;
+                
+                // Validate required fields only
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        input.style.borderColor = '#e74c3c';
+                        input.style.animation = 'shake 0.5s ease-in-out';
+                        hasErrors = true;
+                    } else {
+                        input.style.borderColor = '#22c55e';
+                    }
+                });
+                
+                // Date validation (only if date is selected)
+                if (dateInput && dateInput.value) {
+                    const selectedDate = new Date(dateInput.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Reset time to start of day
+                    
+                    if (selectedDate < today) {
+                        dateInput.style.borderColor = '#e74c3c';
+                        dateInput.style.animation = 'shake 0.5s ease-in-out';
+                        hasErrors = true;
+                        
+                        // Show error message
+                        showDateError('Please select today\'s date or a future date.');
+                    } else {
+                        dateInput.style.borderColor = '#22c55e';
+                    }
+                } else {
+                    // Clear any previous error styling if date is empty
+                    dateInput.style.borderColor = '#e9ecef';
+                }
+                
+                if (hasErrors) {
+                    e.preventDefault();
+                    setTimeout(() => {
+                        inputs.forEach(input => {
+                            input.style.animation = '';
+                        });
+                        if (dateInput) {
+                            dateInput.style.animation = '';
+                        }
+                    }, 500);
+                }
+            });
+        }
+        
+        // Add shake animation CSS
+        const shakeStyle = document.createElement('style');
+        shakeStyle.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            
+            .date-error {
+                background-color: #f8d7da;
+                color: #721c24;
+                padding: 10px 15px;
+                border-radius: 8px;
+                margin-top: 10px;
+                border: 1px solid #f5c6cb;
+                font-size: 0.9rem;
+                display: none;
+            }
+            
+            .date-error.show {
+                display: block;
+                animation: fadeInUp 0.3s ease-out;
+            }
+        `;
+        document.head.appendChild(shakeStyle);
+        
+        // Add input focus animations
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

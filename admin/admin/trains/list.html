@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head('Manage Trains')"></head>
+<body>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">Manage Trains</h1>
+            <div>
+                <a href="/admin/trains/new" th:href="@{/admin/trains/new}" class="btn btn-primary">Create New Train</a>
+                <a href="/" th:href="@{/}" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Train Name</th>
+                    <th>Capacity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="train : ${trains}">
+                    <td th:text="${train.id}">1</td>
+                    <td th:text="${train.name}">Train Name</td>
+                    <td th:text="${train.capacity}">500</td>
+                    <td>
+                        <a th:href="@{/admin/trains/edit/{id}(id=${train.id})}" class="btn btn-warning btn-sm">Edit</a>
+                        <form th:action="@{/admin/trains/delete/{id}(id=${train.id})}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this train? This may affect existing schedules.');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

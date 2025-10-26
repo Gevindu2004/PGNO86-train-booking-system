@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Passenger Login</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>window.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'))</script>
+    <style>
+        /* Override dark styling from app.css */
+        .bg-overlay {
+            display: none !important;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            background: white !important;
+            color: #2c3e50 !important;
+            border: none !important;
+            backdrop-filter: none !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+            border-radius: 15px !important;
+            padding: 2rem !important;
+            max-width: 500px !important;
+            width: 90% !important;
+            margin: 0 !important;
+        }
+        
+        h2 {
+            color: #2c3e50 !important;
+            text-align: center !important;
+            margin-bottom: 2rem !important;
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+        }
+        
+        .error {
+            color: #e74c3c !important;
+            background: #fdf2f2 !important;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            color: #155724 !important;
+            background: #d4edda !important;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 8px 0;
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px !important;
+            margin: 5px 0;
+            border: 2px solid #dee2e6 !important;
+            border-radius: 12px !important;
+            background: #f8f9fa !important;
+            color: #2c3e50 !important;
+            font-size: 1rem !important;
+            font-weight: 500 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3) !important;
+            border-color: #3498db !important;
+            background: white !important;
+            outline: none !important;
+        }
+        
+        input::placeholder {
+            color: #6c757d !important;
+            font-weight: 400 !important;
+            opacity: 0.8 !important;
+        }
+
+        button {
+            padding: 14px 30px !important;
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 10px !important;
+            cursor: pointer;
+            font-weight: 600 !important;
+            font-size: 1.1rem !important;
+            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.3) !important;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        button:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 2px 10px rgba(44, 62, 80, 0.4) !important;
+        }
+        
+        button.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        button.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .form-container {
+            transition: all 0.5s ease;
+        }
+        
+        .form-container.submitting {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+        
+        .success-animation {
+            animation: successPulse 0.6s ease-out;
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.4) !important;
+        }
+
+        a {
+            color: #3498db !important;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #2980b9 !important;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+            color: white !important;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-back:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%) !important;
+            color: #ffffff !important;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .register-link {
+            text-align: center;
+            margin: 20px 0;
+            color: #2c3e50 !important;
+        }
+        
+        .register-link a {
+            color: #3498db !important;
+            font-weight: 600;
+        }
+        
+        .register-link a:hover {
+            color: #2980b9 !important;
+        }
+        
+        /* Responsive design for mobile devices */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .container {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 1.5rem !important;
+                margin: 0 !important;
+            }
+            
+            h2 {
+                font-size: 1.5rem !important;
+            }
+            
+            input {
+                padding: 12px 16px !important;
+                font-size: 16px !important; /* Prevents zoom on iOS */
+            }
+            
+            button {
+                padding: 12px 24px !important;
+                font-size: 1rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem !important;
+            }
+            
+            h2 {
+                font-size: 1.3rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .register-link {
+                margin: 15px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Passenger Login</h2>
+        <div th:if="${param.error}" class="error" th:text="${param.error}"></div>
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+        <div th:if="${logoutSuccess}" class="success" th:text="${logoutSuccess}"></div>
+        <div th:text="${message}" style="margin-bottom: 20px;"></div>
+        <div class="form-container">
+            <form id="loginForm" th:action="@{/login/passenger}" method="post">
+                <label>Username:
+                    <input type="text" name="username" required />
+                </label>
+                <label>Password:
+                    <input type="password" name="password" required />
+                </label>
+                <!-- Hidden field to preserve redirect URL -->
+                <input type="hidden" name="redirectUrl" th:value="${redirectUrl}" />
+                <button type="submit" id="loginBtn">
+                    <span class="btn-text">Login</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="register-link">
+            <p>Don't have an account? <a th:href="@{/register}">Register here</a></p>
+        </div>
+        <div style="text-align: center;">
+            <a th:href="@{/passenger/dashboard}" class="btn-back">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const formContainer = document.querySelector('.form-container');
+            const btnText = document.querySelector('.btn-text');
+            
+            
+            // Add smooth page entrance animation
+            const container = document.querySelector('.container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(30px) scale(0.95)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.8s ease-out';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0) scale(1)';
+            }, 100);
+            
+            // Handle form submission with smooth animations
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Add loading animation
+                loginBtn.classList.add('loading');
+                formContainer.classList.add('submitting');
+                btnText.textContent = 'Logging in...';
+                
+                // Add ripple effect
+                createRippleEffect(loginBtn);
+                
+                // Simulate processing time and then submit
+                setTimeout(() => {
+                    // Add success animation
+                    formContainer.classList.remove('submitting');
+                    formContainer.classList.add('success-animation');
+                    
+                    // Submit the form after animation
+                    setTimeout(() => {
+                        loginForm.submit();
+                    }, 300);
+                }, 1500);
+            });
+            
+            // Add input focus animations
+            const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                    this.parentElement.style.transition = 'transform 0.3s ease';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Add button hover effects
+            loginBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            loginBtn.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('loading')) {
+                    this.style.transform = 'translateY(0)';
+                }
+            });
+            
+            // Create ripple effect function
+            function createRippleEffect(button) {
+                const ripple = document.createElement('span');
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = event.clientX - rect.left - size / 2;
+                const y = event.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                // Add ripple CSS if not already added
+                if (!document.querySelector('#ripple-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'ripple-styles';
+                    style.textContent = `
+                        .ripple {
+                            position: absolute;
+                            border-radius: 50%;
+                            background: rgba(255, 255, 255, 0.3);
+                            transform: scale(0);
+                            animation: ripple-animation 0.6s linear;
+                            pointer-events: none;
+                        }
+                        
+                        @keyframes ripple-animation {
+                            to {
+                                transform: scale(4);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                button.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+            
+            // Add smooth transitions for error/success messages
+            const errorElements = document.querySelectorAll('.error, .success');
+            errorElements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(-10px)';
+                
+                setTimeout(() => {
+                    element.style.transition = 'all 0.5s ease-out';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+
+</html>

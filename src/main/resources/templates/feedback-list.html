@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Feedback</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: #f8f9fa;
+            border: none;
+            font-weight: 600;
+        }
+        .table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-new { background-color: #ffc107; color: #000; }
+        .status-in-review { background-color: #17a2b8; color: #fff; }
+        .status-resolved { background-color: #28a745; color: #fff; }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 20px;
+        }
+        .btn-danger {
+            border-radius: 20px;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #007116;
+            box-shadow: 0 0 0 0.2rem rgb(0, 58, 13);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2><i class="fas fa-comments me-2"></i>Manage Passenger Feedback</h2>
+                        <p class="mb-0">Review and respond to passenger feedback</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4>All Feedback Submissions</h4>
+                            <a th:href="@{/passenger/dashboard}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+
+                        <div th:if="${feedbackList.isEmpty()}" class="text-center py-5">
+                            <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No feedback submissions yet</h5>
+                            <p class="text-muted">Passenger feedback will appear here when submitted.</p>
+                        </div>
+
+                        <div th:if="${!feedbackList.isEmpty()}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Passenger</th>
+                                        <th>Message</th>
+                                        <th>Submitted</th>
+                                        <th>Last Updated</th>
+                                        <th>Updated By</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="feedback : ${feedbackList}">
+                                        <td th:text="${feedback.id}">1</td>
+                                        <td th:text="${feedback.passenger.username}">passenger</td>
+                                        <td style="max-width: 300px; white-space: pre-wrap;" th:text="${feedback.message}">Message content...</td>
+                                        <td th:text="${#temporals.format(feedback.submittedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                                        <td th:text="${#temporals.format(feedback.updatedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                                        <td th:text="${feedback.updatedBy != null ? feedback.updatedBy.username : 'N/A'}"></td>
+                                        <td>
+                                            <span th:class="'status-badge status-' + ${#strings.toLowerCase(#strings.replace(feedback.status, ' ', '-'))}" 
+                                                  th:text="${feedback.status}">New</span>
+                                        </td>
+                                        <td>
+                                            <form th:action="@{/feedback/update/{id}(id=${feedback.id})}" method="post" class="d-inline">
+                                                <div class="mb-2">
+                                                    <select name="status" class="form-select form-select-sm">
+                                                        <option value="New" th:selected="${feedback.status == 'New'}">New</option>
+                                                        <option value="In Review" th:selected="${feedback.status == 'In Review'}">In Review</option>
+                                                        <option value="Resolved" th:selected="${feedback.status == 'Resolved'}">Resolved</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <textarea name="response" class="form-control form-control-sm" rows="3" 
+                                                              placeholder="Type response here..." th:text="${feedback.response}"></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm w-100">Update</button>
+                                            </form>
+                                            <form th:if="${feedback.status == 'Resolved'}" 
+                                                  th:action="@{/feedback/delete/{id}(id=${feedback.id})}" 
+                                                  method="post" class="mt-2" 
+                                                  onsubmit="return confirm('Are you sure you want to permanently delete this feedback?');">
+                                                <button type="submit" class="btn btn-danger btn-sm w-100">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
