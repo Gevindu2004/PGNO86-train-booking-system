@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
+@Table(name = "seat")
 @Data
 public class Seat {
     @Id
@@ -24,7 +25,7 @@ public class Seat {
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")
-    private Schedule schedule;  // Tie availability to specific schedule/date
+    private TrainSchedule schedule;  // Tie availability to specific schedule/date
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -42,6 +43,6 @@ public class Seat {
     public Train getTrain() { return train; }
     public void setTrain(Train train) { this.train = train; }
     
-    public Schedule getSchedule() { return schedule; }
-    public void setSchedule(Schedule schedule) { this.schedule = schedule; }
+    public TrainSchedule getSchedule() { return schedule; }
+    public void setSchedule(TrainSchedule schedule) { this.schedule = schedule; }
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head('Edit User')"></head>
+<body>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+        <h1>Edit User</h1>
+
+        <form action="#" th:action="@{/admin/users/save}" th:object="${user}" method="post">
+            <input type="hidden" th:field="*{id}" />
+            <!-- Password is not edited here to prevent accidental changes/exposure -->
+            <input type="hidden" th:field="*{password}" />
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" th:field="*{username}" class="form-control" id="username" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-control" id="email">
+            </div>
+
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select th:field="*{role}" id="role" class="form-select">
+                    <option value="PASSENGER">PASSENGER</option>
+                    <option value="STATION_MANAGER">STATION_MANAGER</option>
+                    <option value="ANALYST">ANALYST</option>
+                    <option value="ADMIN_MANAGER">ADMIN_MANAGER</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/admin/users" th:href="@{/admin/users}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "booking")
 @Data
 public class Booking {
     @Id
@@ -18,7 +19,7 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
+    private TrainSchedule schedule;
 
     @ManyToMany
     @JoinTable(
@@ -41,8 +42,8 @@ public class Booking {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public Schedule getSchedule() { return schedule; }
-    public void setSchedule(Schedule schedule) { this.schedule = schedule; }
+    public TrainSchedule getSchedule() { return schedule; }
+    public void setSchedule(TrainSchedule schedule) { this.schedule = schedule; }
 
     public List<Seat> getSeats() { return seats; }
     public void setSeats(List<Seat> seats) { this.seats = seats; }

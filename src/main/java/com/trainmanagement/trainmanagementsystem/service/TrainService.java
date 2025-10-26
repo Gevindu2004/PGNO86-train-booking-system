@@ -1,9 +1,9 @@
 package com.trainmanagement.trainmanagementsystem.service;
 
 import com.trainmanagement.trainmanagementsystem.dto.SearchRequest;
-import com.trainmanagement.trainmanagementsystem.entity.Schedule;
+import com.trainmanagement.trainmanagementsystem.entity.TrainSchedule;
 import com.trainmanagement.trainmanagementsystem.entity.Seat;
-import com.trainmanagement.trainmanagementsystem.repository.ScheduleRepository;
+import com.trainmanagement.trainmanagementsystem.repository.TrainScheduleRepository;
 import com.trainmanagement.trainmanagementsystem.repository.SeatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
 public class TrainService {
 
     @Autowired
-    private ScheduleRepository scheduleRepository;
+    private TrainScheduleRepository scheduleRepository;
 
     @Autowired
     private SeatRepository seatRepository;
 
-    public List<Schedule> searchTrains(SearchRequest request) {
+    public List<TrainSchedule> searchTrains(SearchRequest request) {
         String fromStation = request.getFromStation() == null ? "" : request.getFromStation().trim();
         String toStation = request.getToStation() == null ? "" : request.getToStation().trim();
         LocalDate date = request.getDate();

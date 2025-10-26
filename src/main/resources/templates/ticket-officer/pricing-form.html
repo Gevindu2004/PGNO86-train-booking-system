@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add/Edit Pricing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/images/1200x500.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 100px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #007116;
+            box-shadow: 0 0 0 0.2rem rgba(0, 113, 22, 0.25);
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .class-info {
+            background: rgba(0, 113, 22, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>
+                            <i class="fas fa-ticket-alt me-2"></i>
+                            <span th:if="${pricing.id == null}">Add New Pricing</span>
+                            <span th:if="${pricing.id != null}">Edit Pricing</span>
+                        </h2>
+                        <p class="mb-0">Set ticket prices for different routes and classes</p>
+                        <small>Logged in as: <span th:text="${userRoleDisplay}">Ticket Officer</span></small>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Success/Error Messages -->
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Class Information -->
+                        <div class="class-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Class Information</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <span class="badge bg-danger me-2">First Class (A)</span>
+                                    <small class="text-muted">Premium seating with extra comfort</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="badge bg-warning me-2">Second Class (B)</span>
+                                    <small class="text-muted">Standard seating with good comfort</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="badge bg-success me-2">Third Class (C)</span>
+                                    <small class="text-muted">Economy seating for budget travelers</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Form -->
+                        <form th:action="${pricing.id == null ? '/ticket-officer/pricing/add' : '/ticket-officer/pricing/edit/' + pricing.id}" 
+                              th:object="${pricing}" method="post">
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="fromStation" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-1"></i>From Station
+                                    </label>
+                                    <input type="text" class="form-control" id="fromStation" th:field="*{fromStation}" 
+                                           placeholder="e.g., Colombo" required>
+                                    <div class="form-text">Enter the departure station name</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="toStation" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-1"></i>To Station
+                                    </label>
+                                    <input type="text" class="form-control" id="toStation" th:field="*{toStation}" 
+                                           placeholder="e.g., Kandy" required>
+                                    <div class="form-text">Enter the arrival station name</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="classType" class="form-label">
+                                        <i class="fas fa-ticket-alt me-1"></i>Class Type
+                                    </label>
+                                    <select class="form-select" id="classType" th:field="*{classType}" required>
+                                        <option value="">Select Class Type</option>
+                                        <option th:each="classType : ${classTypes}" 
+                                                th:value="${classType}" 
+                                                th:text="${classType.name() == 'A' ? 'First Class (A)' : (classType.name() == 'B' ? 'Second Class (B)' : 'Third Class (C)')}">
+                                            First Class (A)
+                                        </option>
+                                    </select>
+                                    <div class="form-text">Choose the class type for this pricing</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="price" class="form-label">
+                                        <i class="fas fa-rupee-sign me-1"></i>Price (Rs.)
+                                    </label>
+                                    <input type="number" class="form-control" id="price" th:field="*{price}" 
+                                           step="0.01" min="0" placeholder="0.00" required>
+                                    <div class="form-text">Enter the ticket price in Sri Lankan Rupees</div>
+                                </div>
+                            </div>
+
+                            <!-- Existing Stations Suggestions -->
+                            <div th:if="${allStations != null and !allStations.isEmpty()}" class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-lightbulb me-1"></i>Existing Stations
+                                </label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span th:each="station : ${allStations}" 
+                                          class="badge bg-secondary cursor-pointer" 
+                                          th:onclick="'document.getElementById(\'fromStation\').value = \'' + ${station} + '\''"
+                                          th:text="${station}">Colombo</span>
+                                </div>
+                                <div class="form-text">Click on a station name to auto-fill</div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:if="${pricing.id == null}">Add Pricing</span>
+                                        <span th:if="${pricing.id != null}">Update Pricing</span>
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <a th:href="@{/ticket-officer/pricing}" class="btn btn-secondary w-100">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Pricing Guidelines -->
+                        <div class="mt-4">
+                            <h6><i class="fas fa-info-circle me-2"></i>Pricing Guidelines</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>First Class (A) should be priced highest for premium service</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Second Class (B) should be moderately priced for standard service</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Third Class (C) should be priced lowest for economy service</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Consider distance and route popularity when setting prices</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Prices should be competitive with other transportation options</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-fill to station when from station is selected
+        document.getElementById('fromStation').addEventListener('input', function() {
+            const fromStation = this.value;
+            const toStationField = document.getElementById('toStation');
+            
+            // If from station is filled and to station is empty, suggest common destinations
+            if (fromStation && !toStationField.value) {
+                const suggestions = {
+                    'Colombo': ['Kandy', 'Galle', 'Anuradhapura', 'Jaffna'],
+                    'Kandy': ['Colombo', 'Ella', 'Nuwara Eliya', 'Anuradhapura'],
+                    'Galle': ['Colombo', 'Matara', 'Hambantota'],
+                    'Jaffna': ['Colombo', 'Anuradhapura', 'Vavuniya']
+                };
+                
+                if (suggestions[fromStation]) {
+                    // You could implement a dropdown or autocomplete here
+                    console.log('Suggested destinations for ' + fromStation + ':', suggestions[fromStation]);
+                }
+            }
+        });
+
+        // Add cursor pointer style for clickable badges
+        const style = document.createElement('style');
+        style.textContent = '.cursor-pointer { cursor: pointer; }';
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

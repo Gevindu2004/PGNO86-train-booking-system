@@ -1,0 +1,204 @@
+@startuml Train Management System - Main 6 Functions Class Diagram
+
+!theme plain
+skinparam classAttributeIconSize 0
+
+' ===== CORE ENTITY CLASSES =====
+class Train {
+    - id : Long
+    - name : String
+    - route : String
+    + getId() : Long
+    + getName() : String
+    + getRoute() : String
+    + getSchedules() : List<TrainSchedule>
+}
+
+class TrainSchedule {
+    - scheduleId : Long
+    - date : LocalDate
+    - departureTime : LocalTime
+    - arrivalTime : LocalTime
+    - fromStation : String
+    - toStation : String
+    - status : ScheduleStatus
+    + getScheduleId() : Long
+    + getDate() : LocalDate
+    + getDepartureTime() : LocalTime
+    + getArrivalTime() : LocalTime
+    + getFromStation() : String
+    + getToStation() : String
+    + getStatus() : ScheduleStatus
+    + getTrain() : Train
+}
+
+class Seat {
+    - id : Long
+    - seatNumber : String
+    - coachNum : String
+    - available : boolean
+    + getId() : Long
+    + getSeatNumber() : String
+    + getCoachNum() : String
+    + isAvailable() : boolean
+    + getTrain() : Train
+    + getSchedule() : TrainSchedule
+}
+
+class Booking {
+    - id : Long
+    - passengerName : String
+    - bookingTime : LocalDateTime
+    - status : String
+    + getId() : Long
+    + getPassengerName() : String
+    + getBookingTime() : LocalDateTime
+    + getStatus() : String
+    + getSchedule() : TrainSchedule
+    + getSeats() : List<Seat>
+}
+
+class Passenger {
+    - id : Long
+    - fullName : String
+    - email : String
+    - phone : String
+    - username : String
+    - password : String
+    - role : UserRole
+    + getId() : Long
+    + getFullName() : String
+    + getEmail() : String
+    + getPhone() : String
+    + getUsername() : String
+    + getRole() : UserRole
+}
+
+class Pricing {
+    - id : Long
+    - fromStation : String
+    - toStation : String
+    - classType : ClassType
+    - price : BigDecimal
+    + getId() : Long
+    + getFromStation() : String
+    + getToStation() : String
+    + getClassType() : ClassType
+    + getPrice() : BigDecimal
+}
+
+' ===== ENUMERATIONS =====
+enum ScheduleStatus {
+    ON_TIME
+    DELAYED
+    CANCELLED
+}
+
+enum UserRole {
+    PASSENGER
+    TRAIN_STATION_MASTER
+    TICKET_OFFICER
+    PASSENGER_EXPERIENCE_ANALYST
+    ADMIN_STAFF
+}
+
+enum ClassType {
+    A
+    B
+    C
+}
+
+' ===== MAIN FUNCTION CONTROLLERS =====
+class TrainSearchController {
+    + searchTrains(fromStation : String, toStation : String, date : LocalDate) : List<TrainSchedule>
+    + getAvailableSeats(scheduleId : Long) : List<Seat>
+}
+
+class BookingController {
+    + bookTickets(scheduleId : Long, seatIds : List<Long>, passengerName : String) : Booking
+    + cancelBooking(bookingId : Long) : void
+    + getMyBookings(passengerName : String) : List<Booking>
+}
+
+class PricingController {
+    + setPricing(fromStation : String, toStation : String, classType : ClassType, price : BigDecimal) : Pricing
+    + getPricing(fromStation : String, toStation : String, classType : ClassType) : BigDecimal
+    + getAllPricing() : List<Pricing>
+}
+
+class UserManagementController {
+    + registerUser(fullName : String, email : String, username : String, password : String) : Passenger
+    + loginUser(username : String, password : String) : Passenger
+    + updateProfile(userId : Long, fullName : String, email : String, phone : String) : Passenger
+}
+
+class AdminController {
+    + manageTrains() : List<Train>
+    + addTrain(name : String, route : String) : Train
+    + manageSchedules() : List<TrainSchedule>
+    + addSchedule(trainId : Long, date : LocalDate, fromStation : String, toStation : String) : TrainSchedule
+}
+
+class FeedbackController {
+    + submitFeedback(passengerId : Long, bookingId : Long, message : String) : PassengerFeedback
+    + getFeedback() : List<PassengerFeedback>
+    + respondToFeedback(feedbackId : Long, response : String) : PassengerFeedback
+}
+
+class PassengerFeedback {
+    - id : Long
+    - passenger : Passenger
+    - booking : Booking
+    - message : String
+    - response : String
+    - status : String
+    + getId() : Long
+    + getMessage() : String
+    + getResponse() : String
+    + getStatus() : String
+    + getPassenger() : Passenger
+    + getBooking() : Booking
+}
+
+' ===== RELATIONSHIPS =====
+
+' Core Entity Relationships
+Train *-- TrainSchedule : "1 to many"
+Train *-- Seat : "1 to many"
+TrainSchedule *-- Seat : "1 to many"
+TrainSchedule *-- Booking : "1 to many"
+
+Booking o-- TrainSchedule : "belongs to"
+Booking o--o Seat : "many-to-many"
+Passenger o-- PassengerFeedback : "submits"
+Booking o-- PassengerFeedback : "references"
+
+' Enumeration Usage
+TrainSchedule --> ScheduleStatus : uses
+Passenger --> UserRole : uses
+Pricing --> ClassType : uses
+
+' Controller to Entity Relationships
+TrainSearchController --> TrainSchedule : searches
+TrainSearchController --> Seat : gets available seats
+
+BookingController --> Booking : creates/manages
+BookingController --> TrainSchedule : books for
+BookingController --> Seat : reserves
+
+PricingController --> Pricing : manages
+
+UserManagementController --> Passenger : manages
+
+AdminController --> Train : manages
+AdminController --> TrainSchedule : manages
+
+FeedbackController --> PassengerFeedback : manages
+FeedbackController --> Passenger : for user
+FeedbackController --> Booking : references
+
+' Additional Entity Relationships
+PassengerFeedback --> Passenger : passenger
+PassengerFeedback --> Booking : booking
+
+@enduml

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Train Schedules</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            padding-top: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+        .status-ontime {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        .status-delayed {
+            background: linear-gradient(135deg, #ffc107, #ff8f00);
+            color: white;
+        }
+        .status-cancelled {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: linear-gradient(135deg, #007116 0%, #003a0d 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+        .table tbody tr:hover {
+            background-color: rgba(0, 113, 22, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2><i class="fas fa-train me-2"></i>Real-Time Train Schedules</h2>
+                    <p class="mb-0">Live updates for all train schedules and status changes</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <a th:href="@{/admin/schedules/new}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add New Schedule
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Admin Dashboard
+                            </a>
+                        </div>
+                    </div>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+    <tr>
+        <th>ID</th>
+        <th>Train Name</th>
+        <th>Route</th>
+        <th>Departure</th>
+        <th>Arrival</th>
+        <th>Platform</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="schedule : ${schedules}" th:id="'row-' + ${schedule.scheduleID}">
+        <td th:text="${schedule.scheduleID}"></td>
+        <td th:text="${schedule.train != null ? schedule.train.name : 'N/A'}"></td>
+        <td th:text="${schedule.route}"></td>
+        <td th:text="${schedule.departureTime}"></td>
+        <td th:text="${schedule.arrivalTime}"></td>
+        <td th:text="${schedule.platform}"></td>
+        <td>
+            <span th:class="'status-badge status-' + ${#strings.toLowerCase(schedule.status)}" 
+                  th:text="${schedule.status}">OnTime</span>
+        </td>
+        <td>
+            <a th:href="@{/admin/schedules/edit/{id}(id=${schedule.scheduleID})}" class="btn btn-warning btn-sm">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a th:href="@{/admin/schedules/delete/{id}(id=${schedule.scheduleID})}" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- SockJS + STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+    let stompClient = null;
+    function connect() {
+        const socket = new SockJS('/ws-schedules');
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+        stompClient.connect({}, function(frame) {
+            stompClient.subscribe('/topic/schedules', function(message) {
+                const payload = JSON.parse(message.body);
+                handleScheduleMessage(payload);
+            });
+        });
+    }
+
+    function handleScheduleMessage(msg) {
+        const rowId = 'row-' + msg.scheduleID;
+        let row = document.getElementById(rowId);
+        if (msg.action === 'DELETED') {
+            if (row) row.remove();
+            return;
+        }
+        const html = `
+                <tr id="row-${msg.scheduleID}">
+                    <td>${msg.scheduleID}</td>
+                    <td>${msg.trainNumber}</td>
+                    <td>${msg.route}</td>
+                    <td>${msg.departureTime}</td>
+                    <td>${msg.arrivalTime}</td>
+                    <td>${msg.platform}</td>
+                    <td><span class="status-badge status-${msg.status.toLowerCase()}">${msg.status}</span></td>
+                    <td>
+                        <a href="/admin/schedules/edit/${msg.scheduleID}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="/admin/schedules/delete/${msg.scheduleID}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+            `;
+        if (row) {
+            row.outerHTML = html;
+        } else {
+            document.querySelector("table tbody").insertAdjacentHTML('afterbegin', html);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", connect);
+</script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

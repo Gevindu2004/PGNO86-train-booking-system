@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: head('Submit Feedback')"></head>
+<body>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+        <div class="card">
+            <div class="card-header">
+                <h2>Submit a Complaint or Question</h2>
+            </div>
+            <div class="card-body">
+                <form action="#" th:action="@{/feedback/submit}" th:object="${feedback}" method="post">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Your Message</label>
+                        <textarea th:field="*{message}" class="form-control" id="message" rows="5" required placeholder="Please describe your issue or question..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    <a href="/" th:href="@{/}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
