@@ -315,7 +315,7 @@
     <h3>Logout Successful!</h3>
     <p>You have been successfully logged out.</p>
     <div class="popup-buttons">
-        <a href="/passenger/dashboard" class="popup-btn primary">Go to Dashboard</a>
+        <a href="/login" class="popup-btn primary">Go to Login</a>
     </div>
 </div>
 
@@ -347,24 +347,7 @@
         
         // Perform logout after a short delay
         setTimeout(() => {
-            // Create and submit logout form
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/logout';
-            form.style.display = 'none';
-            
-            // Add CSRF token if available
-            const csrfToken = document.querySelector('meta[name="_csrf"]');
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_csrf';
-                csrfInput.value = csrfToken.getAttribute('content');
-                form.appendChild(csrfInput);
-            }
-            
-            document.body.appendChild(form);
-            form.submit();
+            window.location.href = '/logout';
         }, 2000);
     }
 

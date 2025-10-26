@@ -90,7 +90,6 @@ function syncSelectedClass(checkbox) {
   } else {
     seatElement.classList.remove('selected');
   }
-  
 }
 
 // Initialize seat selection functionality
@@ -236,7 +235,6 @@ function handleBookClick() {
   console.log('Redirecting to login page');
   window.location.href = '/login';
 }
-
 
 // Export functions for global access
 // @description Makes key functions available globally for potential reuse

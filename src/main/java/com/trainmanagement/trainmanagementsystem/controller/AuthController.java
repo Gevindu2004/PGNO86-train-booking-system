@@ -2,7 +2,6 @@ package com.trainmanagement.trainmanagementsystem.controller;
 
 import com.trainmanagement.trainmanagementsystem.entity.Passenger;
 import com.trainmanagement.trainmanagementsystem.service.PassengerService;
-import com.trainmanagement.trainmanagementsystem.util.RoleBasedAccessControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,9 +21,6 @@ public class AuthController {
 
     @Autowired
     private PassengerService passengerService;
-
-    @Autowired
-    private RoleBasedAccessControl rbac;
 
     @GetMapping("/login")
     public String showLoginForm(Model model, 
@@ -72,33 +68,12 @@ public class AuthController {
                 
                 System.out.println("Authentication stored in session for user: " + passenger.getUsername());
                 
-                // Redirect to the original URL if provided, otherwise check user type
+                // Redirect to the original URL if provided, otherwise default to passenger booking
                 if (redirectUrl != null && !redirectUrl.isEmpty()) {
                     System.out.println("Redirecting to: " + redirectUrl);
                     return "redirect:" + redirectUrl;
                 } else {
-                    // Role-based redirect logic
-                    switch (passenger.getRole()) {
-                        case ADMIN_STAFF:
-                            System.out.println("Admin staff detected, redirecting to admin dashboard");
-                            return "redirect:/admin/dashboard";
-                        case TRAIN_STATION_MASTER:
-                            System.out.println("Train Station Master detected, redirecting to admin dashboard");
-                            return "redirect:/admin/dashboard";
-                        case PASSENGER_EXPERIENCE_ANALYST:
-                            System.out.println("Passenger Experience Analyst detected, redirecting to analyst dashboard");
-                            return "redirect:/admin/analyst/dashboard";
-                        case TICKET_OFFICER:
-                            System.out.println("=== TICKET OFFICER LOGIN DETECTED ===");
-                            System.out.println("Username: " + passenger.getUsername());
-                            System.out.println("Role: " + passenger.getRole());
-                            System.out.println("Redirecting to ticket officer dashboard");
-                            return "redirect:/ticket-officer/dashboard";
-                        case PASSENGER:
-                        default:
-                            System.out.println("Regular user, redirecting to passenger booking");
-                            return "redirect:/passenger/booking";
-                    }
+                    return "redirect:/passenger/booking";
                 }
             } else {
                 System.out.println("Login failed for: " + username);
@@ -204,21 +179,6 @@ public class AuthController {
             System.out.println("Error during logout: " + e.getMessage());
             redirectAttributes.addFlashAttribute("error", "Logout failed. Please try again.");
             return "redirect:/login";
-        }
-    }
-
-    @GetMapping("/access-denied")
-    public String accessDenied() {
-        return "access-denied";
-    }
-
-    @GetMapping("/debug-user-role")
-    public String debugUserRole() {
-        Passenger user = rbac.getCurrentUser();
-        if (user != null) {
-            return "User: " + user.getUsername() + ", Role: " + user.getRole() + ", Role Name: " + user.getRole().name();
-        } else {
-            return "No authenticated user found";
         }
     }
 

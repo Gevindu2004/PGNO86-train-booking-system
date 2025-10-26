@@ -30,10 +30,6 @@ public class Passenger {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private UserRole role = UserRole.PASSENGER;
-
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -105,22 +101,5 @@ public class Passenger {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    // UserRole enum
-    public enum UserRole {
-        PASSENGER,
-        TRAIN_STATION_MASTER,
-        TICKET_OFFICER,
-        PASSENGER_EXPERIENCE_ANALYST,
-        ADMIN_STAFF
     }
 }

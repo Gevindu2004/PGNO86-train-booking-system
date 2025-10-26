@@ -73,16 +73,3 @@ CREATE TABLE IF NOT EXISTS `booking_seats` (
     CONSTRAINT `fk_booking_seats_seat` FOREIGN KEY (`seat_id`)
         REFERENCES `seat`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
--- PRICING TABLE
-CREATE TABLE IF NOT EXISTS `pricing` (
-    `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
-    `from_station` VARCHAR(255) NOT NULL,
-    `to_station` VARCHAR(255) NOT NULL,
-    `class_type` ENUM('A', 'B', 'C') NOT NULL,
-    `price` DECIMAL(10,2) NOT NULL,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY `unique_route_class` (`from_station`, `to_station`, `class_type`)
-) ENGINE=InnoDB;
-

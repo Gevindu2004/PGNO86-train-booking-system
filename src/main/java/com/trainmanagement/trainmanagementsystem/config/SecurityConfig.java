@@ -22,15 +22,19 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
+                        // Static resources
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        // Public pages
                         .requestMatchers("/", "/login", "/register", "/logout").permitAll()
+                        // Authentication endpoints
                         .requestMatchers("/login/passenger", "/register/passenger").permitAll()
+                        // Train search and booking (public)
                         .requestMatchers("/trains/**", "/bookings/**").permitAll()
+                        // Passenger dashboard and related pages (public for now)
                         .requestMatchers("/passenger/**").permitAll()
-                        .requestMatchers("/feedback/**", "/alerts/**").permitAll()
-                        .requestMatchers("/admin/**").authenticated()
+                        // All other requests require authentication
                         .anyRequest().authenticated());
-        
+        // Removed formLogin() to allow custom controller-based login
         return http.build();
     }
 }

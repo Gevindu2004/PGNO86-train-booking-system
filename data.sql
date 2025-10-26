@@ -109,36 +109,3 @@ FROM (
          UNION SELECT 16 UNION SELECT 17 UNION SELECT 18 UNION SELECT 19 UNION SELECT 20
      ) AS seat_numbers
 ORDER BY seat_num;
-
--- INSERT PRICING DATA
-INSERT INTO pricing (from_station, to_station, class_type, price) VALUES
--- Colombo to Kandy prices
-('Colombo', 'Kandy', 'A', 2000.00),
-('Colombo', 'Kandy', 'B', 500.00),
-('Colombo', 'Kandy', 'C', 240.00),
-
--- Kandy to Ella prices
-('Kandy', 'Ella', 'A', 1500.00),
-('Kandy', 'Ella', 'B', 400.00),
-('Kandy', 'Ella', 'C', 200.00),
-
--- Polgahawela to Colombo prices
-('Polgahawela', 'Colombo', 'A', 1200.00),
-('Polgahawela', 'Colombo', 'B', 300.00),
-('Polgahawela', 'Colombo', 'C', 150.00),
-
--- Reverse routes (Kandy to Colombo, etc.)
-('Kandy', 'Colombo', 'A', 2000.00),
-('Kandy', 'Colombo', 'B', 500.00),
-('Kandy', 'Colombo', 'C', 240.00),
-
-('Ella', 'Kandy', 'A', 1500.00),
-('Ella', 'Kandy', 'B', 400.00),
-('Ella', 'Kandy', 'C', 200.00),
-
-('Colombo', 'Polgahawela', 'A', 1200.00),
-('Colombo', 'Polgahawela', 'B', 300.00),
-('Colombo', 'Polgahawela', 'C', 150.00)
-ON DUPLICATE KEY UPDATE 
-price=VALUES(price),
-updated_at=CURRENT_TIMESTAMP;

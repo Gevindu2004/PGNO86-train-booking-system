@@ -5,216 +5,11 @@
     <title>Complete Booking</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <link rel="stylesheet" th:href="@{/css/booking.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>window.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'))</script>
-    <style>
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-            text-decoration: none;
-        }
-        
-        .navbar-nav {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .nav-link {
-            color: #2c3e50;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        
-        .nav-link:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .profile-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            background-color: #3498db;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        
-        .profile-btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .profile-dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            border-radius: 8px;
-            z-index: 1001;
-            overflow: hidden;
-        }
-        
-        .profile-dropdown-content a {
-            color: #2c3e50;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            transition: background-color 0.3s;
-        }
-        
-        .profile-dropdown-content a:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .profile-dropdown-content a.logout {
-            color: #e74c3c;
-            border-top: 1px solid #ecf0f1;
-        }
-        
-        .profile-dropdown-content a.logout:hover {
-            background-color: #fdf2f2;
-        }
-        
-        .show {
-            display: block;
-        }
-        
-        .logout-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 2000;
-            text-align: center;
-            display: none;
-        }
-        
-        .logout-popup.show {
-            display: block;
-        }
-        
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1999;
-            display: none;
-        }
-        
-        .popup-overlay.show {
-            display: block;
-        }
-        
-        .popup-icon {
-            font-size: 3rem;
-            color: #27ae60;
-            margin-bottom: 1rem;
-        }
-        
-        .popup-buttons {
-            margin-top: 1.5rem;
-        }
-        
-        .popup-btn {
-            padding: 0.5rem 1.5rem;
-            margin: 0 0.5rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .popup-btn.primary {
-            background-color: #3498db;
-            color: white;
-        }
-        
-        .popup-btn.primary:hover {
-            background-color: #2980b9;
-        }
-        
-        /* Add padding to body to account for fixed navbar */
-        body {
-            padding-top: 80px;
-        }
-    </style>
 </head>
 
 <body>
-<!-- Navigation Bar -->
-<nav class="navbar">
-    <a href="/" class="navbar-brand">
-        <i class="fas fa-train"></i> Ceylon RailEase
-    </a>
-    <div class="navbar-nav">
-        <a th:href="@{/passenger/dashboard}" class="nav-link">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-        <a th:href="@{/passenger/bookings}" class="nav-link">
-            <i class="fas fa-ticket-alt"></i> My Bookings
-        </a>
-        <div class="profile-dropdown" th:if="${isAuthenticated == true}">
-            <button class="profile-btn" onclick="toggleProfileDropdown()">
-                <i class="fas fa-user-circle"></i>
-                <span th:text="${username}">Profile</span>
-                <i class="fas fa-chevron-down"></i>
-            </button>
-            <div id="profileDropdown" class="profile-dropdown-content">
-                <a th:href="@{/passenger/profile}">
-                    <i class="fas fa-user-edit"></i> Change Profile
-                </a>
-                <a href="#" class="logout" onclick="showLogoutPopup()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </div>
-        <div th:if="${isAuthenticated == false}">
-            <a th:href="@{/login}" class="nav-link">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </a>
-        </div>
-    </div>
-</nav>
     <div class="container">
         <div class="header">
             <h1>Complete Your Booking</h1>
@@ -222,7 +17,7 @@
         </div>
 
         <div class="card booking-form">
-            <h3 style="color: #333; margin-bottom: 20px;">Booking Details</h3>
+            <h3>Booking Details</h3>
 
             <!-- Success message display -->
             <div th:if="${param.success}" class="success"
@@ -236,7 +31,13 @@
             </div>
 
 
-
+            <!-- Show selected seats information -->
+            <div id="selected-seats-info" class="selected-seats-info" style="margin-bottom: 20px;">
+                <h4>Selected Seats:</h4>
+                <div id="seats-list" style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+                    <!-- Seats will be populated by JavaScript -->
+                </div>
+            </div>
 
             <form th:action="@{/bookings/complete}" method="post" id="booking-form">
                 <input type="hidden" name="scheduleId" id="scheduleId" />
@@ -254,9 +55,8 @@
                         <strong>Note:</strong> You are not logged in. <a th:href="@{/login}" style="color: #856404; text-decoration: underline;">Login here</a> to see your details.
                     </div>
                 </div>
-
                 <div class="spacer"></div>
-                <button type="submit" class="btn primary">Proceed Booking</button>
+                <button type="submit" class="btn primary">Confirm Booking</button>
             </form>
         </div>
 
@@ -278,10 +78,67 @@
     </div>
 
     <script>
+        // Make seat mapping available to JavaScript
+        window.seatIdToNumberMap = /*[[${seatIdToNumberMap}]]*/ {};
+        
+        // Check if the mapping is populated, if not create manual mapping
+        if (Object.keys(window.seatIdToNumberMap).length === 0) {
+            createManualSeatMapping();
+        }
+        
+        // Manual seat mapping as fallback (based on your database structure)
+        function createManualSeatMapping() {
+            window.seatIdToNumberMap = {};
+            
+            // Based on your data.sql, create the mapping manually
+            // Schedule 1 seats (A1-W1 to A1-W20, A2-W1 to A2-W20, etc.)
+            let seatId = 1;
+            
+            // A1 coach seats (A1-W1 to A1-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A1-W${i}`;
+                seatId++;
+            }
+            
+            // A2 coach seats (A2-W1 to A2-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A2-W${i}`;
+                seatId++;
+            }
+            
+            // A3 coach seats (A3-W1 to A3-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A3-W${i}`;
+                seatId++;
+            }
+            
+            // A4 coach seats (A4-W1 to A4-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A4-W${i}`;
+                seatId++;
+            }
+            
+            // A5 coach seats (A5-W1 to A5-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `A5-W${i}`;
+                seatId++;
+            }
+            
+            // B1 coach seats (B1-W1 to B1-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `B1-W${i}`;
+                seatId++;
+            }
+            
+            // C1 coach seats (C1-W1 to C1-W20)
+            for (let i = 1; i <= 20; i++) {
+                window.seatIdToNumberMap[seatId.toString()] = `C1-W${i}`;
+                seatId++;
+            }
+        }
         
         // Load booking data from localStorage and populate the form
         document.addEventListener('DOMContentLoaded', function () {
-            
             const rawBookingData = localStorage.getItem('pendingBooking');
             let bookingData;
             try {
@@ -297,6 +154,27 @@
                 document.getElementById('scheduleId').value = bookingData.scheduleId;
                 // Set seat IDs (for backend processing)
                 document.getElementById('seatIds').value = bookingData.seatIds.join(',');
+                // Map seat IDs to seat numbers for display
+                let seatNumbers = [];
+                
+                bookingData.seatIds.forEach(seatId => {
+                    // Always convert seatId to string for lookup
+                    const seatIdStr = String(seatId).trim();
+                    let seatNumber = seatIdStr; // Default to seat ID if mapping not found
+                    
+                    // Try to find the seat number in the mapping
+                    if (window.seatIdToNumberMap && window.seatIdToNumberMap[seatIdStr]) {
+                        seatNumber = window.seatIdToNumberMap[seatIdStr];
+                    }
+                    seatNumbers.push(seatNumber);
+                });
+                // Show seat numbers in the read-only input
+                const seatNumbersDisplay = document.getElementById('seatNumbersDisplay');
+                if (seatNumbersDisplay) {
+                    seatNumbersDisplay.value = seatNumbers.join(', ');
+                }
+                // Populate seat information display
+                populateSeatInfo(bookingData.seatIds, seatNumbers);
                 // Set booking time
                 document.getElementById('booking-time').textContent = new Date().toLocaleString();
                 // Set passenger name (you can enhance this with actual user data)
@@ -323,6 +201,26 @@
             `;
         }
 
+        function populateSeatInfo(seatIds, seatNumbersArr) {
+            const seatsList = document.getElementById('seats-list');
+            seatsList.innerHTML = '';
+            seatIds.forEach((seatId, idx) => {
+                const seatIdStr = String(seatId).trim();
+                let seatNumber = seatIdStr; // Default to seat ID
+                
+                // Try to get the seat number from the mapping first
+                if (window.seatIdToNumberMap && window.seatIdToNumberMap[seatIdStr]) {
+                    seatNumber = window.seatIdToNumberMap[seatIdStr];
+                } else if (seatNumbersArr && seatNumbersArr[idx]) {
+                    seatNumber = seatNumbersArr[idx];
+                }
+                
+                const seatDiv = document.createElement('div');
+                seatDiv.className = 'seat-box selected';
+                seatDiv.textContent = `Seat ${seatNumber}`;
+                seatsList.appendChild(seatDiv);
+            });
+        }
 
 
         // Clear booking data after successful submission
@@ -332,79 +230,8 @@
                 localStorage.removeItem('pendingBooking');
             });
         }
-        
-        // Navigation bar functionality
-        function toggleProfileDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            dropdown.classList.toggle('show');
-        }
-
-        // Close dropdown when clicking outside
-        window.onclick = function(event) {
-            if (!event.target.matches('.profile-btn') && !event.target.closest('.profile-dropdown')) {
-                const dropdown = document.getElementById('profileDropdown');
-                if (dropdown.classList.contains('show')) {
-                    dropdown.classList.remove('show');
-                }
-            }
-        }
-
-    // Show logout popup
-    function showLogoutPopup() {
-        // Close profile dropdown
-        document.getElementById('profileDropdown').classList.remove('show');
-        
-        // Show popup
-        document.getElementById('logoutOverlay').classList.add('show');
-        document.getElementById('logoutPopup').classList.add('show');
-        
-        // Perform logout after a short delay
-        setTimeout(() => {
-            // Create and submit logout form
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/logout';
-            form.style.display = 'none';
-            
-            // Add CSRF token if available
-            const csrfToken = document.querySelector('meta[name="_csrf"]');
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_csrf';
-                csrfInput.value = csrfToken.getAttribute('content');
-                form.appendChild(csrfInput);
-            }
-            
-            document.body.appendChild(form);
-            form.submit();
-        }, 2000);
-    }
-
-        // Close popup when clicking overlay
-        document.getElementById('logoutOverlay').onclick = function() {
-            hideLogoutPopup();
-        }
-
-        function hideLogoutPopup() {
-            document.getElementById('logoutOverlay').classList.remove('show');
-            document.getElementById('logoutPopup').classList.remove('show');
-        }
-
     </script>
 
-<!-- Logout Popup -->
-<div id="logoutOverlay" class="popup-overlay"></div>
-<div id="logoutPopup" class="logout-popup">
-    <div class="popup-icon">
-        <i class="fas fa-check-circle"></i>
-    </div>
-    <h3>Logout Successful!</h3>
-    <p>You have been successfully logged out.</p>
-    <div class="popup-buttons">
-        <a href="/passenger/dashboard" class="popup-btn primary">Go to Dashboard</a>
-    </div>
-</div>
 
 </body>
 

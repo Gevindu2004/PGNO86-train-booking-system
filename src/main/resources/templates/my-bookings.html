@@ -8,19 +8,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .navbar {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: fixed;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
             z-index: 1000;
-            width: 100%;
-            box-sizing: border-box;
         }
         
         .navbar-brand {
@@ -108,8 +105,67 @@
             display: block;
         }
         
+        .logout-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            text-align: center;
+            display: none;
+        }
         
-
+        .logout-popup.show {
+            display: block;
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        
+        .popup-overlay.show {
+            display: block;
+        }
+        
+        .popup-icon {
+            font-size: 3rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .popup-buttons {
+            margin-top: 1.5rem;
+        }
+        
+        .popup-btn {
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .popup-btn.primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .popup-btn.primary:hover {
+            background-color: #2980b9;
+        }
 
         /* Button Styles */
         .btn {
@@ -167,8 +223,7 @@
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
         }
         
         .page-header h1 {
@@ -187,16 +242,16 @@
         }
         
         .booking-card {
-            background: white !important;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 25px;
             border-left: 5px solid #28a745;
-            border: 2px solid #dee2e6;
         }
         
         .booking-card.cancelled {
             border-left-color: #dc3545;
+            opacity: 0.7;
         }
         
         .booking-header {
@@ -241,15 +296,13 @@
         .detail-group {
             background: #f8f9fa;
             padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
+            border-radius: 8px;
         }
         
         .detail-group h4 {
             margin: 0 0 10px 0;
-            color: #2c3e50;
+            color: #495057;
             font-size: 1rem;
-            font-weight: bold;
         }
         
         .detail-item {
@@ -261,12 +314,11 @@
         
         .detail-label {
             font-weight: bold;
-            color: #2c3e50;
+            color: #6c757d;
         }
         
         .detail-value {
-            color: #34495e;
-            font-weight: 500;
+            color: #495057;
         }
         
         .booking-actions {
@@ -278,16 +330,6 @@
             border-top: 1px solid #e9ecef;
         }
         
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
         
         .btn-danger {
             background: #dc3545;
@@ -298,22 +340,13 @@
             background: #c82333;
         }
         
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #545b62;
-        }
         
         .no-bookings {
             text-align: center;
             padding: 60px 20px;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .no-bookings-icon {
@@ -332,19 +365,6 @@
             margin-bottom: 25px;
         }
         
-        .btn-primary {
-            background: #007bff;
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            display: inline-block;
-        }
-        
-        .btn-primary:hover {
-            background: #0056b3;
-        }
         
         .error-message {
             background: #f8d7da;
@@ -353,130 +373,6 @@
             border-radius: 5px;
             margin-bottom: 20px;
             border: 1px solid #f5c6cb;
-        }
-        
-        /* Clickable seat styles */
-        .clickable-seat {
-            display: inline-block;
-            padding: 4px 8px;
-            margin: 2px;
-            background-color: #e3f2fd;
-            border: 1px solid #2196f3;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            color: #1976d2;
-        }
-        
-        .clickable-seat:hover {
-            background-color: #bbdefb;
-            border-color: #1976d2;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .clickable-seat:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .seat-separator::after {
-            content: ", ";
-            color: #6c757d;
-            font-weight: normal;
-        }
-        
-        /* Pricing display styles */
-        .pricing-display {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            background: #e8f5e8;
-            border: 2px solid #28a745;
-            border-radius: 8px;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        .pricing-display.show {
-            display: block;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .pricing-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .pricing-header i {
-            color: #28a745;
-            margin-right: 8px;
-            font-size: 1.2em;
-        }
-        
-        .pricing-header h5 {
-            margin: 0;
-            color: #28a745;
-            font-weight: bold;
-        }
-        
-        .pricing-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-        
-        .pricing-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #d4edda;
-        }
-        
-        .pricing-item:last-child {
-            border-bottom: none;
-            font-weight: bold;
-            color: #28a745;
-            font-size: 1.1em;
-            padding-top: 10px;
-            margin-top: 5px;
-            border-top: 2px solid #28a745;
-        }
-        
-        .pricing-label {
-            color: #495057;
-        }
-        
-        .pricing-value {
-            color: #28a745;
-            font-weight: 500;
-        }
-        
-        /* Body styling with background image */
-        body {
-            background-image: url('/images/travel-by-train-girl-travels-by-train-b.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            min-height: 100vh;
-            padding-top: 80px;
-        }
-        
-        /* Remove overlay to show background image clearly */
-        body::before {
-            display: none;
         }
     </style>
 </head>
@@ -570,67 +466,18 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Seats:</span>
-                            <span class="detail-value">
-                                <span th:each="seat, iterStat : ${booking.seats}" 
-                                      th:text="${seat.seatNumber}" 
-                                      th:onclick="'togglePricing(' + ${booking.id} + ')'"
-                                      class="clickable-seat"
-                                      th:classappend="${iterStat.last} ? '' : 'seat-separator'">A1-W1</span>
-                            </span>
+                            <span class="detail-value" th:text="${#strings.listJoin(booking.seats.![seatNumber], ', ')}">A1-W1, A1-W2</span>
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Booked On:</span>
                             <span class="detail-value" th:text="${#temporals.format(booking.bookingTime, 'dd/MM/yyyy HH:mm')}">25/12/2024 10:30</span>
                         </div>
                     </div>
-                    
-                    <!-- Clickable pricing display -->
-                    <div class="pricing-display" th:id="'pricing-' + ${booking.id}" th:if="${bookingPricing != null and bookingPricing[booking.id] != null}">
-                        <div class="pricing-header">
-                            <i class="fas fa-ticket-alt"></i>
-                            <h5>Ticket Pricing Details</h5>
-                        </div>
-                        <div class="pricing-details">
-                            <div class="pricing-item">
-                                <span class="pricing-label">Class Type:</span>
-                                <span class="pricing-value" th:text="${bookingPricing[booking.id].classType}">First Class</span>
-                            </div>
-                            <div class="pricing-item">
-                                <span class="pricing-label">Price per Seat:</span>
-                                <span class="pricing-value">Rs. <span th:text="${bookingPricing[booking.id].pricePerSeat}">2000.00</span></span>
-                            </div>
-                            <div class="pricing-item">
-                                <span class="pricing-label">Number of Seats:</span>
-                                <span class="pricing-value" th:text="${bookingPricing[booking.id].seatCount}">1</span>
-                            </div>
-                            <div class="pricing-item">
-                                <span class="pricing-label">Total Amount:</span>
-                                <span class="pricing-value">Rs. <span th:text="${bookingPricing[booking.id].totalAmount}">2000.00</span></span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="booking-actions" th:if="${booking.status == 'CONFIRMED'}">
-                    <!-- Show Change Seats button only if booking can be modified -->
-                    <a th:if="${bookingModificationStatus[booking.id] == 'CAN_MODIFY'}" 
-                       th:href="@{/passenger/bookings/{id}/change-seats(id=${booking.id})}" 
-                       class="btn btn-warning me-2">
-                        <i class="fas fa-exchange-alt me-1"></i>Change Seats
-                    </a>
-                    
-                    <!-- Show time limit message if booking can only be cancelled -->
-                    <div th:if="${bookingModificationStatus[booking.id] == 'CAN_ONLY_CANCEL'}" 
-                         class="alert alert-info d-inline-block me-2 mb-0" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
-                        <i class="fas fa-clock me-1"></i>
-                        <small>Seat changes allowed only within 30 minutes of booking</small>
-                    </div>
-                    
-                    <!-- Always show Cancel button for confirmed bookings -->
                     <form th:action="@{/bookings/cancel/{id}(id=${booking.id})}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this booking? This action cannot be undone.')">
-                            <i class="fas fa-times me-1"></i>Cancel Booking
-                        </button>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel Booking</button>
                     </form>
                 </div>
             </div>
@@ -664,10 +511,9 @@
     <h3>Logout Successful!</h3>
     <p>You have been successfully logged out.</p>
     <div class="popup-buttons">
-        <a href="/passenger/dashboard" class="popup-btn primary">Go to Dashboard</a>
+        <a href="/login" class="popup-btn primary">Go to Login</a>
     </div>
 </div>
-
 
 <script>
     // Toggle profile dropdown
@@ -697,24 +543,7 @@
         
         // Perform logout after a short delay
         setTimeout(() => {
-            // Create and submit logout form
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/logout';
-            form.style.display = 'none';
-            
-            // Add CSRF token if available
-            const csrfToken = document.querySelector('meta[name="_csrf"]');
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_csrf';
-                csrfInput.value = csrfToken.getAttribute('content');
-                form.appendChild(csrfInput);
-            }
-            
-            document.body.appendChild(form);
-            form.submit();
+            window.location.href = '/logout';
         }, 2000);
     }
 
@@ -727,26 +556,6 @@
         document.getElementById('logoutOverlay').classList.remove('show');
         document.getElementById('logoutPopup').classList.remove('show');
     }
-
-    // Toggle pricing display when seats are clicked
-    function togglePricing(bookingId) {
-        const pricingElement = document.getElementById('pricing-' + bookingId);
-        if (pricingElement) {
-            // Toggle the show class
-            pricingElement.classList.toggle('show');
-            
-            // Add a subtle animation effect
-            if (pricingElement.classList.contains('show')) {
-                // Scroll to the pricing section smoothly
-                pricingElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'nearest' 
-                });
-            }
-        }
-    }
-
-
 </script>
 </body>
 </html>
